@@ -539,7 +539,7 @@ $EndComp
 Text Label 4150 6400 0    60   ~ 0
 SWDIO
 Text Label 4150 6500 0    60   ~ 0
-SWCL
+SWCLK
 Text Label 4150 7200 0    60   ~ 0
 SWO
 $Comp
@@ -1066,4 +1066,16 @@ Text Label 12500 2650 2    60   ~ 0
 MISC4
 Wire Wire Line
 	1400 1750 1850 1750
+Wire Wire Line
+	4600 8200 4100 8200
+Wire Wire Line
+	4600 8300 4100 8300
+Wire Wire Line
+	4600 8400 4100 8400
+Text Label 4100 8200 0    60   ~ 0
+LED1
+Text Label 4100 8300 0    60   ~ 0
+LED2
+Text Label 4100 8400 0    60   ~ 0
+LED3
 $EndSCHEMATC

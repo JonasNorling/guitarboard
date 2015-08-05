@@ -567,17 +567,6 @@ $EndComp
 Text Notes 950  10050 0    79   ~ 16
 FIXME:\n- What is the power requirement? How big LDO needed?\n- Check decoupling and analog rails\n- Use 0.05" header for SWD\n- LED connections\n- Figure out if PA6 is good timer dither output\n- Verify footprint for opamp\n- Use longer pads on TQFP footprint
 $Comp
-L C C13
-U 1 1 55C05695
-P 8950 2950
-F 0 "C13" H 8975 3050 50  0000 L CNN
-F 1 "100n" H 8975 2850 50  0000 L CNN
-F 2 "Capacitors_SMD:C_0805_HandSoldering" H 8988 2800 30  0001 C CNN
-F 3 "" H 8950 2950 60  0000 C CNN
-	1    8950 2950
-	1    0    0    -1  
-$EndComp
-$Comp
 L C C14
 U 1 1 55C0575D
 P 9200 2950

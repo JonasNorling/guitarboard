@@ -540,7 +540,7 @@ F 3 "" H 4150 3500 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Text Notes 950  10050 0    79   ~ 16
-FIXME:\n- What is the power requirement? How big LDO needed?\n- Check decoupling and analog rails\n- Use 0.05" header for SWD\n- LED connections\n- Verify footprint for opamp\n- CODED clock requirement (is something from the MCU ok?)
+FIXME:\n- What is the power requirement? How big LDO needed?\n- Check decoupling and analog rails\n- Use 0.05" header for SWD\n- LED connections\n- Verify footprint for opamp\n- CODED clock requirement (is something from the MCU ok?)\n- Test points on I2S and SPI?
 $Comp
 L C C14
 U 1 1 55C0575D
@@ -980,9 +980,9 @@ Text Label 4150 5300 0    60   ~ 0
 MISC3
 Text Label 4150 5400 0    60   ~ 0
 MISC4
-Text Label 4150 5500 0    60   ~ 0
+Text Label 13250 6900 2    60   ~ 0
 MISC5
-Text Label 4150 5600 0    60   ~ 0
+Text Label 13250 7000 2    60   ~ 0
 MISC6
 $Comp
 L CONN_01X08 P3
@@ -1036,5 +1036,47 @@ Wire Wire Line
 Wire Wire Line
 	2350 6700 2900 6700
 Text Label 2900 6700 2    60   ~ 0
-I2S2_MSK
+I2S2_MCK
+Text Label 2900 6200 2    60   ~ 0
+I2S2_CK
+Text Label 2900 6300 2    60   ~ 0
+I2S2_MOSI
+Text Label 2900 6400 2    60   ~ 0
+I2S2_WS
+Text Label 2900 6500 2    60   ~ 0
+I2S2_MISO
+Text Label 2900 6600 2    60   ~ 0
+I2S2_WS
+Wire Wire Line
+	2350 5800 2900 5800
+Wire Wire Line
+	2350 5900 2900 5900
+Wire Wire Line
+	2350 6000 2900 6000
+Text Label 2900 5800 2    60   ~ 0
+SPI_CS
+Text Label 2900 6000 2    60   ~ 0
+SPI_MOSI
+Text Label 2900 5900 2    60   ~ 0
+SPI_SCK
+Text Label 4150 5500 0    60   ~ 0
+SPI_CS
+Text Label 4150 5600 0    60   ~ 0
+SPI_SCK
+Wire Wire Line
+	4150 5800 4600 5800
+Text Label 4150 5800 0    60   ~ 0
+SPI_MOSI
+Wire Wire Line
+	12750 6900 13250 6900
+Wire Wire Line
+	12750 7000 13250 7000
+Wire Wire Line
+	12750 7200 13250 7200
+Text Label 13250 7200 2    60   ~ 0
+LED2
+Wire Wire Line
+	12750 7600 13250 7600
+Text Label 13250 7600 2    60   ~ 0
+LED1
 $EndSCHEMATC

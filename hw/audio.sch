@@ -176,28 +176,6 @@ OPINL
 Text Label 2900 5350 0    60   Italic 0
 OPINR
 $Comp
-L TST TP204
-U 1 1 55C1F6EB
-P 4500 2900
-F 0 "TP204" H 4500 3100 50  0000 C BNN
-F 1 "TST" H 4500 3150 50  0001 C CNN
-F 2 "Measurement_Points:Measurement_Point_Square-SMD-Pad_Small" H 4500 2900 60  0001 C CNN
-F 3 "" H 4500 2900 60  0000 C CNN
-	1    4500 2900
-	1    0    0    -1  
-$EndComp
-$Comp
-L TST TP205
-U 1 1 55C1F7F9
-P 4500 5450
-F 0 "TP205" H 4500 5650 50  0000 C BNN
-F 1 "TST" H 4500 5700 50  0001 C CNN
-F 2 "Measurement_Points:Measurement_Point_Square-SMD-Pad_Small" H 4500 5450 60  0001 C CNN
-F 3 "" H 4500 5450 60  0000 C CNN
-	1    4500 5450
-	-1   0    0    1   
-$EndComp
-$Comp
 L C C214
 U 1 1 55C24C89
 P 4350 1750
@@ -312,23 +290,23 @@ $EndComp
 $Comp
 L TST TP201
 U 1 1 55C1F291
-P 1800 2350
-F 0 "TP201" H 1800 2550 50  0000 C BNN
-F 1 "TST" H 1800 2600 50  0001 C CNN
-F 2 "Measurement_Points:Measurement_Point_Square-SMD-Pad_Small" H 1800 2350 60  0001 C CNN
-F 3 "" H 1800 2350 60  0000 C CNN
-	1    1800 2350
+P 4500 2700
+F 0 "TP201" H 4500 2900 50  0000 C BNN
+F 1 "TST" H 4500 2950 50  0001 C CNN
+F 2 "Measurement_Points:Measurement_Point_Square-SMD-Pad_Small" H 4500 2700 60  0001 C CNN
+F 3 "" H 4500 2700 60  0000 C CNN
+	1    4500 2700
 	1    0    0    -1  
 $EndComp
 $Comp
 L TST TP202
 U 1 1 55C1F663
-P 2050 5750
-F 0 "TP202" H 2050 5950 50  0000 C BNN
-F 1 "TST" H 2050 6000 50  0001 C CNN
-F 2 "Measurement_Points:Measurement_Point_Square-SMD-Pad_Small" H 2050 5750 60  0001 C CNN
-F 3 "" H 2050 5750 60  0000 C CNN
-	1    2050 5750
+P 4500 5600
+F 0 "TP202" H 4500 5800 50  0000 C BNN
+F 1 "TST" H 4500 5850 50  0001 C CNN
+F 2 "Measurement_Points:Measurement_Point_Square-SMD-Pad_Small" H 4500 5600 60  0001 C CNN
+F 3 "" H 4500 5600 60  0000 C CNN
+	1    4500 5600
 	-1   0    0    1   
 $EndComp
 Text Label 4500 2900 2    60   ~ 0

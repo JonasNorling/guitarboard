@@ -1,8 +1,8 @@
 (export (version D)
   (design
     (source /home/jonas/src/m4audio/hw/m4audio.sch)
-    (date "ons  5 aug 2015 20:31:21")
-    (tool "Eeschema 0.201508050901+6050~28~ubuntu15.04.1-product")
+    (date "Thu 06 Aug 2015 11:15:35 PM CEST")
+    (tool "Eeschema 0.201508050901+6050~28~ubuntu14.04.1-product")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
         (title "Cortex-M4 audio DSP board")
@@ -442,7 +442,7 @@
       (tstamp 55C1F7F9))
     (comp (ref TP203)
       (value TST)
-      (footprint Measurement_Points:Measurement_Point_Square-SMD-Pad_Small)
+      (footprint Jonas_Connectors:Test_Point_Through)
       (libsource (lib device) (part TST))
       (sheetpath (names /audio/) (tstamps /55BF97AF/))
       (tstamp 55C20151))
@@ -495,28 +495,90 @@
       (sheetpath (names /audio/) (tstamps /55BF97AF/))
       (tstamp 55C2504A)))
   (libparts
-    (libpart (lib conn) (part TEST)
-      (description point)
-      (fields
-        (field (name Reference) W)
-        (field (name Value) TEST))
-      (pins
-        (pin (num 1) (name 1) (type passive))
-        (pin (num 2) (name 2) (type passive))))
-    (libpart (lib conn) (part USB_OTG)
-      (description "micro/mini connector")
+    (libpart (lib device) (part C_Small)
+      (description "Unpolarized capacitor")
       (footprints
-        (fp USB*))
+        (fp C?)
+        (fp C_????_*)
+        (fp C_????)
+        (fp SMD*_c)
+        (fp Capacitor*))
+      (fields
+        (field (name Reference) C)
+        (field (name Value) C_Small))
+      (pins
+        (pin (num 1) (name ~) (type passive))
+        (pin (num 2) (name ~) (type passive))))
+    (libpart (lib device) (part C)
+      (description "Unpolarized capacitor")
+      (footprints
+        (fp C?)
+        (fp C_????_*)
+        (fp C_????)
+        (fp SMD*_c)
+        (fp Capacitor*))
+      (fields
+        (field (name Reference) C)
+        (field (name Value) C))
+      (pins
+        (pin (num 1) (name ~) (type passive))
+        (pin (num 2) (name ~) (type passive))))
+    (libpart (lib device) (part LED)
+      (footprints
+        (fp LED-3MM)
+        (fp LED-5MM)
+        (fp LED-10MM)
+        (fp LED-0603)
+        (fp LED-0805)
+        (fp LED-1206)
+        (fp LEDV))
+      (fields
+        (field (name Reference) D)
+        (field (name Value) LED))
+      (pins
+        (pin (num 1) (name K) (type passive))
+        (pin (num 2) (name A) (type passive))))
+    (libpart (lib conn) (part CONN_01X02)
+      (footprints
+        (fp Pin_Header_Straight_1X02)
+        (fp Pin_Header_Angled_1X02)
+        (fp Socket_Strip_Straight_1X02)
+        (fp Socket_Strip_Angled_1X02))
       (fields
         (field (name Reference) P)
-        (field (name Value) USB_OTG))
+        (field (name Value) CONN_01X02))
       (pins
-        (pin (num 1) (name VCC) (type power_out))
-        (pin (num 2) (name D-) (type passive))
-        (pin (num 3) (name D+) (type passive))
-        (pin (num 4) (name ID) (type power_in))
-        (pin (num 5) (name GND) (type power_in))
-        (pin (num 6) (name shield) (type passive))))
+        (pin (num 1) (name P1) (type passive))
+        (pin (num 2) (name P2) (type passive))))
+    (libpart (lib device) (part TST)
+      (fields
+        (field (name Reference) P)
+        (field (name Value) TST))
+      (pins
+        (pin (num 1) (name ~) (type passive))))
+    (libpart (lib regul) (part LD1117S33TR)
+      (aliases
+        (alias LD1117S33CTR)
+        (alias LD1117S12TR)
+        (alias LD1117S12CTR)
+        (alias LD1117S18TR)
+        (alias LD1117S18CTR)
+        (alias LD1117S25TR)
+        (alias LD1117S25CTR)
+        (alias LD1117S50TR)
+        (alias LD1117S50CTR))
+      (description "800mA Fixed Low Drop Positive Voltage Regulator, Fixed Output 3.3V, SOT223")
+      (docs http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/CD00000544.pdf)
+      (footprints
+        (fp SOT223))
+      (fields
+        (field (name Reference) U)
+        (field (name Value) LD1117S33TR)
+        (field (name Footprint) SOT-223))
+      (pins
+        (pin (num 1) (name GND) (type power_in))
+        (pin (num 2) (name VO) (type power_out))
+        (pin (num 3) (name VI) (type power_in))))
     (libpart (lib linear) (part LM2902N)
       (aliases
         (alias LM324)
@@ -544,55 +606,6 @@
         (pin (num 12) (name +) (type input))
         (pin (num 13) (name -) (type input))
         (pin (num 14) (name ~) (type output))))
-    (libpart (lib regul) (part LD1117S33TR)
-      (aliases
-        (alias LD1117S33CTR)
-        (alias LD1117S12TR)
-        (alias LD1117S12CTR)
-        (alias LD1117S18TR)
-        (alias LD1117S18CTR)
-        (alias LD1117S25TR)
-        (alias LD1117S25CTR)
-        (alias LD1117S50TR)
-        (alias LD1117S50CTR))
-      (description "800mA Fixed Low Drop Positive Voltage Regulator, Fixed Output 3.3V, SOT223")
-      (docs http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/CD00000544.pdf)
-      (footprints
-        (fp SOT223))
-      (fields
-        (field (name Reference) U)
-        (field (name Value) LD1117S33TR)
-        (field (name Footprint) SOT-223))
-      (pins
-        (pin (num 1) (name GND) (type power_in))
-        (pin (num 2) (name VO) (type power_out))
-        (pin (num 3) (name VI) (type power_in))))
-    (libpart (lib conn) (part CONN_01X02)
-      (footprints
-        (fp Pin_Header_Straight_1X02)
-        (fp Pin_Header_Angled_1X02)
-        (fp Socket_Strip_Straight_1X02)
-        (fp Socket_Strip_Angled_1X02))
-      (fields
-        (field (name Reference) P)
-        (field (name Value) CONN_01X02))
-      (pins
-        (pin (num 1) (name P1) (type passive))
-        (pin (num 2) (name P2) (type passive))))
-    (libpart (lib conn) (part CONN_01X04)
-      (footprints
-        (fp Pin_Header_Straight_1X04)
-        (fp Pin_Header_Angled_1X04)
-        (fp Socket_Strip_Straight_1X04)
-        (fp Socket_Strip_Angled_1X04))
-      (fields
-        (field (name Reference) P)
-        (field (name Value) CONN_01X04))
-      (pins
-        (pin (num 1) (name P1) (type passive))
-        (pin (num 2) (name P2) (type passive))
-        (pin (num 3) (name P3) (type passive))
-        (pin (num 4) (name P4) (type passive))))
     (libpart (lib conn) (part CONN_01X06)
       (footprints
         (fp Pin_Header_Straight_1X06)
@@ -609,60 +622,67 @@
         (pin (num 4) (name P4) (type passive))
         (pin (num 5) (name P5) (type passive))
         (pin (num 6) (name P6) (type passive))))
-    (libpart (lib device) (part LED)
+    (libpart (lib conn) (part USB_OTG)
+      (description "micro/mini connector")
       (footprints
-        (fp LED-3MM)
-        (fp LED-5MM)
-        (fp LED-10MM)
-        (fp LED-0603)
-        (fp LED-0805)
-        (fp LED-1206)
-        (fp LEDV))
+        (fp USB*))
       (fields
-        (field (name Reference) D)
-        (field (name Value) LED))
+        (field (name Reference) P)
+        (field (name Value) USB_OTG))
       (pins
-        (pin (num 1) (name K) (type passive))
-        (pin (num 2) (name A) (type passive))))
-    (libpart (lib device) (part C_Small)
-      (description "Unpolarized capacitor")
+        (pin (num 1) (name VCC) (type power_out))
+        (pin (num 2) (name D-) (type passive))
+        (pin (num 3) (name D+) (type passive))
+        (pin (num 4) (name ID) (type power_in))
+        (pin (num 5) (name GND) (type power_in))
+        (pin (num 6) (name shield) (type passive))))
+    (libpart (lib conn) (part CONN_01X04)
       (footprints
-        (fp C?)
-        (fp C_????_*)
-        (fp C_????)
-        (fp SMD*_c)
-        (fp Capacitor*))
+        (fp Pin_Header_Straight_1X04)
+        (fp Pin_Header_Angled_1X04)
+        (fp Socket_Strip_Straight_1X04)
+        (fp Socket_Strip_Angled_1X04))
+      (fields
+        (field (name Reference) P)
+        (field (name Value) CONN_01X04))
+      (pins
+        (pin (num 1) (name P1) (type passive))
+        (pin (num 2) (name P2) (type passive))
+        (pin (num 3) (name P3) (type passive))
+        (pin (num 4) (name P4) (type passive))))
+    (libpart (lib device) (part Crystal)
+      (description "Two pin crystal")
+      (footprints
+        (fp Crystal_*))
+      (fields
+        (field (name Reference) Y)
+        (field (name Value) Crystal))
+      (pins
+        (pin (num 1) (name 1) (type passive))
+        (pin (num 2) (name 2) (type passive))))
+    (libpart (lib device) (part CP)
+      (description "Polarised capacitor")
+      (footprints
+        (fp CP*)
+        (fp Elko*)
+        (fp TantalC*)
+        (fp C*elec)
+        (fp c_elec*)
+        (fp SMD*_Pol))
       (fields
         (field (name Reference) C)
-        (field (name Value) C_Small))
+        (field (name Value) CP))
       (pins
         (pin (num 1) (name ~) (type passive))
         (pin (num 2) (name ~) (type passive))))
-    (libpart (lib device) (part R)
-      (description Resistor)
-      (footprints
-        (fp R_*)
-        (fp Resistor_*))
+    (libpart (lib conn) (part TEST)
+      (description point)
       (fields
-        (field (name Reference) R)
-        (field (name Value) R))
+        (field (name Reference) W)
+        (field (name Value) TEST))
       (pins
-        (pin (num 1) (name ~) (type passive))
-        (pin (num 2) (name ~) (type passive))))
-    (libpart (lib device) (part C)
-      (description "Unpolarized capacitor")
-      (footprints
-        (fp C?)
-        (fp C_????_*)
-        (fp C_????)
-        (fp SMD*_c)
-        (fp Capacitor*))
-      (fields
-        (field (name Reference) C)
-        (field (name Value) C))
-      (pins
-        (pin (num 1) (name ~) (type passive))
-        (pin (num 2) (name ~) (type passive))))
+        (pin (num 1) (name 1) (type passive))
+        (pin (num 2) (name 2) (type passive))))
     (libpart (lib conn) (part CONN_02X05)
       (footprints
         (fp Pin_Header_Straight_2X05)
@@ -683,37 +703,6 @@
         (pin (num 8) (name P8) (type passive))
         (pin (num 9) (name P9) (type passive))
         (pin (num 10) (name P10) (type passive))))
-    (libpart (lib device) (part Crystal)
-      (description "Two pin crystal")
-      (footprints
-        (fp Crystal_*))
-      (fields
-        (field (name Reference) Y)
-        (field (name Value) Crystal))
-      (pins
-        (pin (num 1) (name 1) (type passive))
-        (pin (num 2) (name 2) (type passive))))
-    (libpart (lib device) (part TST)
-      (fields
-        (field (name Reference) P)
-        (field (name Value) TST))
-      (pins
-        (pin (num 1) (name ~) (type passive))))
-    (libpart (lib device) (part CP)
-      (description "Polarised capacitor")
-      (footprints
-        (fp CP*)
-        (fp Elko*)
-        (fp TantalC*)
-        (fp C*elec)
-        (fp c_elec*)
-        (fp SMD*_Pol))
-      (fields
-        (field (name Reference) C)
-        (field (name Value) CP))
-      (pins
-        (pin (num 1) (name ~) (type passive))
-        (pin (num 2) (name ~) (type passive))))
     (libpart (lib stm32) (part STM32F405RG)
       (description "STM32F407VG, 32-bit ARM Cortex-M4F microcontroller, 168 MHz, 1024 kB Flash, 192 kB SRAM, FPU")
       (docs http://www.st.com/internet/mcu/product/252142.jsp)
@@ -785,18 +774,29 @@
         (pin (num 61) (name PB8/TIM4_CH3/SDIO_D4/TIM10_CH1/I2C1_SCL/CAN1_RX/EVENTOUT) (type input))
         (pin (num 62) (name PB9/SPI2_NSS/I2S2_WS/TIM4_CH4/TIM11_CH1/SDIO_D5/I2C1_SDA/CAN1_TX/EVENTOUT) (type input))
         (pin (num 63) (name VSS) (type input))
-        (pin (num 64) (name VDD) (type input)))))
+        (pin (num 64) (name VDD) (type input))))
+    (libpart (lib device) (part R)
+      (description Resistor)
+      (footprints
+        (fp R_*)
+        (fp Resistor_*))
+      (fields
+        (field (name Reference) R)
+        (field (name Value) R))
+      (pins
+        (pin (num 1) (name ~) (type passive))
+        (pin (num 2) (name ~) (type passive)))))
   (libraries
-    (library (logical linear)
-      (uri /usr/share/kicad/library/linear.lib))
-    (library (logical conn)
-      (uri /usr/share/kicad/library/conn.lib))
+    (library (logical device)
+      (uri /usr/share/kicad/library/device.lib))
     (library (logical regul)
       (uri /usr/share/kicad/library/regul.lib))
+    (library (logical conn)
+      (uri /usr/share/kicad/library/conn.lib))
+    (library (logical linear)
+      (uri /usr/share/kicad/library/linear.lib))
     (library (logical stm32)
-      (uri /home/jonas/src/kicad-library/library/stm32.lib))
-    (library (logical device)
-      (uri /usr/share/kicad/library/device.lib)))
+      (uri /home/jonas/src/kicad-library/library/stm32.lib)))
   (nets
     (net (code 1) (name /USB_DM)
       (node (ref U1) (pin 44))

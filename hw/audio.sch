@@ -882,7 +882,7 @@ U 1 1 55C20151
 P 4150 3300
 F 0 "TP203" H 4150 3500 50  0000 C BNN
 F 1 "TST" H 4150 3550 50  0001 C CNN
-F 2 "Measurement_Points:Measurement_Point_Square-SMD-Pad_Small" H 4150 3300 60  0001 C CNN
+F 2 "Jonas_Connectors:Test_Point_Through" H 4150 3300 60  0001 C CNN
 F 3 "" H 4150 3300 60  0000 C CNN
 	1    4150 3300
 	1    0    0    -1  

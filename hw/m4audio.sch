@@ -29,6 +29,8 @@ LIBS:atmel
 LIBS:contrib
 LIBS:valves
 LIBS:stm32
+LIBS:wm8731
+LIBS:jack_trs
 LIBS:m4audio-cache
 EELAYER 25 0
 EELAYER END
@@ -217,7 +219,7 @@ U 1 1 55BF8875
 P 2050 1650
 F 0 "C3" H 2075 1750 50  0000 L CNN
 F 1 "10u" H 2075 1550 50  0000 L CNN
-F 2 "Capacitors_SMD:C_1206_HandSoldering" H 2088 1500 30  0001 C CNN
+F 2 "Capacitors_SMD:C_0805_HandSoldering" H 2088 1500 30  0001 C CNN
 F 3 "" H 2050 1650 60  0000 C CNN
 	1    2050 1650
 	1    0    0    -1  
@@ -228,7 +230,7 @@ U 1 1 55BF8931
 P 3300 1650
 F 0 "C4" H 3325 1750 50  0000 L CNN
 F 1 "10u" H 3325 1550 50  0000 L CNN
-F 2 "Capacitors_SMD:C_1206_HandSoldering" H 3338 1500 30  0001 C CNN
+F 2 "Capacitors_SMD:C_0805_HandSoldering" H 3338 1500 30  0001 C CNN
 F 3 "" H 3300 1650 60  0000 C CNN
 	1    3300 1650
 	1    0    0    -1  
@@ -248,25 +250,6 @@ Text Label 1800 1500 0    60   ~ 0
 PWR_5V
 Text Label 950  1500 0    60   ~ 0
 USB_5V
-$Sheet
-S 950  5650 1400 1100
-U 55BF97AF
-F0 "audio" 60
-F1 "audio.sch" 60
-F2 "DAC_OUT1" I R 2350 5750 60 
-F3 "DAC_OUT2" I R 2350 5850 60 
-F4 "ADC_IN1" O R 2350 6050 60 
-F5 "ADC_IN2" O R 2350 6150 60 
-F6 "DITHER" I R 2350 6350 60 
-$EndSheet
-Text Label 4150 5500 0    60   ~ 0
-DAC_OUT1
-Text Label 4150 5600 0    60   ~ 0
-DAC_OUT2
-Text Label 2850 5750 2    60   ~ 0
-DAC_OUT1
-Text Label 2850 5850 2    60   ~ 0
-DAC_OUT2
 $Comp
 L +3V3 #PWR08
 U 1 1 55BFB59E
@@ -315,14 +298,6 @@ Text Label 4200 4250 0    60   ~ 0
 NRST
 Text Label 4200 4050 0    60   ~ 0
 BOOT0
-Text Label 4050 5200 0    60   ~ 0
-ADC123_IN1
-Text Label 4050 5300 0    60   ~ 0
-ADC123_IN2
-Text Label 3000 6050 2    60   ~ 0
-ADC123_IN1
-Text Label 3000 6150 2    60   ~ 0
-ADC123_IN2
 Text Label 4200 4350 0    60   ~ 0
 OSCIN
 Text Label 4200 4650 0    60   ~ 0
@@ -565,7 +540,7 @@ F 3 "" H 4150 3500 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Text Notes 950  10050 0    79   ~ 16
-FIXME:\n- What is the power requirement? How big LDO needed?\n- Check decoupling and analog rails\n- Use 0.05" header for SWD\n- LED connections\n- Figure out if PA6 is good timer dither output\n- Verify footprint for opamp\n- Use longer pads on TQFP footprint
+FIXME:\n- What is the power requirement? How big LDO needed?\n- Check decoupling and analog rails\n- Use 0.05" header for SWD\n- LED connections\n- Verify footprint for opamp\n- CODED clock requirement (is something from the MCU ok?)
 $Comp
 L C C14
 U 1 1 55C0575D
@@ -676,7 +651,7 @@ F 3 "" H 14300 6300 60  0000 C CNN
 	1    14300 6300
 	1    0    0    -1  
 $EndComp
-Text Label 14300 5000 3    79   ~ 16
+Text Label 14300 5000 3    79   ~ 0
 LED1
 $Comp
 L LED D2
@@ -711,43 +686,8 @@ F 3 "" H 14600 6300 60  0000 C CNN
 	1    14600 6300
 	1    0    0    -1  
 $EndComp
-Text Label 14600 5000 3    79   ~ 16
+Text Label 14600 5000 3    79   ~ 0
 LED2
-$Comp
-L LED D3
-U 1 1 55C07D35
-P 14900 6000
-F 0 "D3" H 14900 6100 50  0000 C CNN
-F 1 "LED" H 14900 5900 50  0000 C CNN
-F 2 "LEDs:LED-0805" H 14900 6000 60  0001 C CNN
-F 3 "" H 14900 6000 60  0000 C CNN
-	1    14900 6000
-	0    -1   -1   0   
-$EndComp
-$Comp
-L R R14
-U 1 1 55C07D3B
-P 14900 5500
-F 0 "R14" V 14980 5500 50  0000 C CNN
-F 1 "470" V 14900 5500 50  0000 C CNN
-F 2 "Resistors_SMD:R_0805_HandSoldering" V 14830 5500 30  0001 C CNN
-F 3 "" H 14900 5500 30  0000 C CNN
-	1    14900 5500
-	-1   0    0    1   
-$EndComp
-$Comp
-L GND #PWR027
-U 1 1 55C07D42
-P 14900 6300
-F 0 "#PWR027" H 14900 6050 50  0001 C CNN
-F 1 "GND" H 14900 6150 50  0000 C CNN
-F 2 "" H 14900 6300 60  0000 C CNN
-F 3 "" H 14900 6300 60  0000 C CNN
-	1    14900 6300
-	1    0    0    -1  
-$EndComp
-Text Label 14900 5000 3    79   ~ 16
-LED3
 $Comp
 L TST TP2
 U 1 1 55BFCE1E
@@ -771,54 +711,27 @@ F 3 "" H 3150 1350 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L CONN_01X06 P6
-U 1 1 55C1AC14
-P 11700 2500
-F 0 "P6" H 11700 2850 50  0000 C CNN
-F 1 "CONN_01X06" V 11800 2500 50  0000 C CNN
-F 2 "Pin_Headers:Pin_Header_Angled_1x06" H 11700 2500 60  0001 C CNN
-F 3 "" H 11700 2500 60  0000 C CNN
-	1    11700 2500
-	-1   0    0    1   
-$EndComp
-$Comp
-L GND #PWR028
+L GND #PWR027
 U 1 1 55C1AED0
-P 12100 2850
-F 0 "#PWR028" H 12100 2600 50  0001 C CNN
-F 1 "GND" H 12100 2700 50  0000 C CNN
-F 2 "" H 12100 2850 60  0000 C CNN
-F 3 "" H 12100 2850 60  0000 C CNN
-	1    12100 2850
+P 12100 3050
+F 0 "#PWR027" H 12100 2800 50  0001 C CNN
+F 1 "GND" H 12100 2900 50  0000 C CNN
+F 2 "" H 12100 3050 60  0000 C CNN
+F 3 "" H 12100 3050 60  0000 C CNN
+	1    12100 3050
 	1    0    0    -1  
 $EndComp
 $Comp
-L VDD #PWR029
+L VDD #PWR028
 U 1 1 55C1AF65
 P 12000 2050
-F 0 "#PWR029" H 12000 1900 50  0001 C CNN
+F 0 "#PWR028" H 12000 1900 50  0001 C CNN
 F 1 "VDD" H 12000 2200 50  0000 C CNN
 F 2 "" H 12000 2050 60  0000 C CNN
 F 3 "" H 12000 2050 60  0000 C CNN
 	1    12000 2050
 	1    0    0    -1  
 $EndComp
-Text Label 3000 6350 2    60   ~ 0
-DITHER
-Text Label 4150 5700 0    60   ~ 0
-DITHER
-Text Label 13300 7300 2    60   ~ 0
-MISC1
-Text Label 13300 7400 2    60   ~ 0
-MISC2
-Text Notes 13350 7350 0    60   ~ 0
-ADC12 capable
-Text Label 13300 7500 2    60   ~ 0
-MISC3
-Text Label 13300 7600 2    60   ~ 0
-MISC4
-Text Notes 13350 7550 0    60   ~ 0
-USART6, TIM3
 Wire Wire Line
 	1500 3300 1500 3700
 Wire Wire Line
@@ -882,14 +795,6 @@ Wire Wire Line
 Connection ~ 1850 1500
 Connection ~ 2050 1850
 Wire Wire Line
-	4600 5500 4150 5500
-Wire Wire Line
-	4600 5600 4150 5600
-Wire Wire Line
-	2350 5750 2850 5750
-Wire Wire Line
-	2350 5850 2850 5850
-Wire Wire Line
 	8050 9250 8050 9100
 Connection ~ 3300 1500
 Wire Wire Line
@@ -909,14 +814,6 @@ Wire Wire Line
 Wire Wire Line
 	3300 4350 3450 4350
 Connection ~ 3300 4650
-Wire Wire Line
-	4600 5200 4050 5200
-Wire Wire Line
-	4600 5300 4050 5300
-Wire Wire Line
-	2350 6050 3000 6050
-Wire Wire Line
-	2350 6150 3000 6150
 Wire Wire Line
 	4100 7100 4600 7100
 Wire Wire Line
@@ -1018,36 +915,18 @@ Wire Wire Line
 	14600 6200 14600 6300
 Wire Wire Line
 	14600 5350 14600 5000
-Wire Wire Line
-	14900 5650 14900 5800
-Wire Wire Line
-	14900 6200 14900 6300
-Wire Wire Line
-	14900 5350 14900 5000
 Connection ~ 3300 1850
 Wire Wire Line
 	3150 1350 3150 1500
 Connection ~ 3150 1500
 Wire Wire Line
-	11900 2750 12100 2750
+	11900 2950 12100 2950
 Wire Wire Line
 	11900 2250 12000 2250
 Wire Wire Line
 	12000 2250 12000 2050
 Wire Wire Line
-	2350 6350 3000 6350
-Wire Wire Line
-	4600 5700 4150 5700
-Wire Wire Line
-	12750 7300 13300 7300
-Wire Wire Line
-	12750 7400 13300 7400
-Wire Wire Line
-	12750 7500 13300 7500
-Wire Wire Line
-	12750 7600 13300 7600
-Wire Wire Line
-	12100 2750 12100 2850
+	12100 2950 12100 3050
 Wire Wire Line
 	11900 2350 12500 2350
 Wire Wire Line
@@ -1066,16 +945,96 @@ Text Label 12500 2650 2    60   ~ 0
 MISC4
 Wire Wire Line
 	1400 1750 1850 1750
+$Sheet
+S 950  5650 1400 1200
+U 55BF97AF
+F0 "audio" 60
+F1 "audio.sch" 60
+F2 "CS" I R 2350 5800 60 
+F3 "SCLK" I R 2350 5900 60 
+F4 "MOSI" I R 2350 6000 60 
+F5 "BCLK" I R 2350 6200 60 
+F6 "DACDAT" I R 2350 6300 60 
+F7 "DACLR" I R 2350 6400 60 
+F8 "ADCDAT" I R 2350 6500 60 
+F9 "ADCLR" I R 2350 6600 60 
+F10 "MCLK" I R 2350 6700 60 
+$EndSheet
+Wire Wire Line
+	4600 5300 4150 5300
+Wire Wire Line
+	4600 5400 4150 5400
+Wire Wire Line
+	4600 5500 4150 5500
+Wire Wire Line
+	4600 5600 4150 5600
+Wire Wire Line
+	4600 5100 4150 5100
+Wire Wire Line
+	4600 5200 4150 5200
+Text Label 4150 5100 0    60   ~ 0
+MISC1
+Text Label 4150 5200 0    60   ~ 0
+MISC2
+Text Label 4150 5300 0    60   ~ 0
+MISC3
+Text Label 4150 5400 0    60   ~ 0
+MISC4
+Text Label 4150 5500 0    60   ~ 0
+MISC5
+Text Label 4150 5600 0    60   ~ 0
+MISC6
+$Comp
+L CONN_01X08 P3
+U 1 1 55C681A7
+P 11700 2600
+F 0 "P3" H 11700 3050 50  0000 C CNN
+F 1 "CONN_01X08" V 11800 2600 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Angled_1x08" H 11700 2600 60  0001 C CNN
+F 3 "" H 11700 2600 60  0000 C CNN
+	1    11700 2600
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	11900 2750 12500 2750
+Wire Wire Line
+	11900 2850 12500 2850
+Text Label 12500 2750 2    60   ~ 0
+MISC5
+Text Label 12500 2850 2    60   ~ 0
+MISC6
+Wire Wire Line
+	4600 8400 4100 8400
 Wire Wire Line
 	4600 8200 4100 8200
 Wire Wire Line
+	4600 8100 4100 8100
+Wire Wire Line
 	4600 8300 4100 8300
 Wire Wire Line
-	4600 8400 4100 8400
-Text Label 4100 8200 0    60   ~ 0
-LED1
-Text Label 4100 8300 0    60   ~ 0
-LED2
-Text Label 4100 8400 0    60   ~ 0
-LED3
+	12750 7500 13250 7500
+Text Label 13250 7500 2    60   Italic 0
+I2S2_MCK
+Text Label 4100 8100 0    60   Italic 0
+I2S2_WS
+Text Label 4100 8200 0    60   Italic 0
+I2S2_CK
+Text Label 4100 8300 0    60   Italic 0
+I2S2_MISO
+Text Label 4100 8400 0    60   Italic 0
+I2S2_MOSI
+Wire Wire Line
+	2350 6200 2900 6200
+Wire Wire Line
+	2350 6300 2900 6300
+Wire Wire Line
+	2350 6400 2900 6400
+Wire Wire Line
+	2350 6500 2900 6500
+Wire Wire Line
+	2350 6600 2900 6600
+Wire Wire Line
+	2350 6700 2900 6700
+Text Label 2900 6700 2    60   ~ 0
+I2S2_MSK
 $EndSCHEMATC

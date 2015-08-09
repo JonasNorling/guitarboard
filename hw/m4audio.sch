@@ -1160,4 +1160,6 @@ Wire Wire Line
 	2450 1250 1950 1250
 Text Label 2100 1850 0    60   ~ 0
 9V
+Text Notes 2450 2050 0    60   ~ 0
+Use 10V or 16V cap
 $EndSCHEMATC

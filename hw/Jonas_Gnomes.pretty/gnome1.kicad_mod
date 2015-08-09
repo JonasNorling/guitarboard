@@ -1,10 +1,13 @@
-(module gnome1 (layer F.Cu) (tedit 55C64DF2)
+(module gnome1 (layer F.Cu) (tedit 55C713C2)
   (fp_text reference REF** (at 0 4) (layer F.SilkS) hide
     (effects (font (size 1 1) (thickness 0.15)))
   )
   (fp_text value gnome1 (at 0.05 -6.53) (layer F.Fab) hide
     (effects (font (size 1 1) (thickness 0.15)))
   )
+  (fp_line (start 1.76 -1.91) (end 1.63 2.12) (layer F.SilkS) (width 0.15))
+  (fp_line (start 1.89 -1.15) (end 1.82 2.1) (layer F.SilkS) (width 0.15))
+  (fp_line (start -1.53 -1.93) (end -1.84 1.69) (layer F.SilkS) (width 0.15))
   (fp_line (start 1.96 -3.02) (end 2 -2.7) (layer F.SilkS) (width 0.15))
   (fp_line (start 2.45 -3.27) (end 2.4 -2.83) (layer F.SilkS) (width 0.15))
   (fp_line (start 2.69 -4.74) (end 2.86 -4.77) (layer F.SilkS) (width 0.15))
@@ -73,5 +76,4 @@
   (fp_line (start -0.87 -2.61) (end 1.22 -2.47) (layer F.SilkS) (width 0.15))
   (fp_line (start -1.73 -1.78) (end -0.87 -2.61) (layer F.SilkS) (width 0.15))
   (fp_line (start -2.08 1.69) (end -1.73 -1.78) (layer F.SilkS) (width 0.15))
-  (pad 1 smd trapezoid (at 0.06 -0.15 357) (size 3.6 4.5) (rect_delta 0 0.4 ) (layers F.Cu))
 )

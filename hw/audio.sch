@@ -348,7 +348,7 @@ Wire Wire Line
 Wire Wire Line
 	4100 1500 4100 1600
 Wire Wire Line
-	1750 2800 1750 4050
+	1750 4050 1750 2800
 Wire Wire Line
 	1750 2800 2000 2800
 Wire Wire Line
@@ -395,7 +395,7 @@ Wire Wire Line
 Wire Wire Line
 	1750 4250 1750 5350
 Wire Wire Line
-	1750 4050 1400 4050
+	1400 4050 1750 4050
 Wire Wire Line
 	3200 3000 3100 3000
 Wire Wire Line
@@ -441,15 +441,15 @@ Connection ~ 9500 3650
 Wire Wire Line
 	9700 3000 10200 3000
 Wire Wire Line
-	9700 3000 9700 2350
+	9700 2350 9700 3000
 Wire Wire Line
-	9700 2350 9300 2350
+	9300 2350 9700 2350
 Wire Wire Line
 	9700 3200 10200 3200
 Wire Wire Line
-	9700 3200 9700 3650
+	9700 3650 9700 3200
 Wire Wire Line
-	9700 3650 9300 3650
+	9300 3650 9700 3650
 Wire Wire Line
 	9900 2800 10200 2800
 Wire Wire Line
@@ -545,30 +545,30 @@ Wire Wire Line
 	8050 3100 8050 3050
 Text Notes 5550 2600 0    60   Italic 0
 For Fs=48 kHz, run with MCLK=12.88 MHz (256fs)
-Text HLabel 5700 3300 0    60   Input ~ 0
+Text HLabel 4500 3300 0    60   Input ~ 0
 BCLK
-Text HLabel 5700 3500 0    60   Input ~ 0
+Text HLabel 4500 3500 0    60   Input ~ 0
 DACDAT
-Text HLabel 5700 3700 0    60   Input ~ 0
+Text HLabel 4500 3700 0    60   Input ~ 0
 DACLR
-Text HLabel 5700 3900 0    60   Input ~ 0
+Text HLabel 4500 3900 0    60   Input ~ 0
 ADCDAT
-Text HLabel 5700 4100 0    60   Input ~ 0
+Text HLabel 4500 4100 0    60   Input ~ 0
 ADCLR
 Text HLabel 7500 3500 2    60   Input ~ 0
 MCLK
 Wire Wire Line
 	7400 3500 7500 3500
 Wire Wire Line
-	5700 3300 5800 3300
+	4500 3300 5800 3300
 Wire Wire Line
-	5700 3500 5800 3500
+	4500 3500 5800 3500
 Wire Wire Line
-	5700 3700 5800 3700
+	4500 3700 5800 3700
 Wire Wire Line
-	5700 3900 5800 3900
+	4500 3900 5800 3900
 Wire Wire Line
-	5700 4100 5800 4100
+	4500 4100 5800 4100
 Wire Wire Line
 	5800 5100 5300 5100
 Wire Wire Line
@@ -938,4 +938,52 @@ Connection ~ 10150 3000
 Wire Wire Line
 	10050 3350 10050 2800
 Connection ~ 10050 2800
+$Comp
+L TST TP8
+U 1 1 55C7DE4F
+P 4600 3300
+F 0 "TP8" H 4600 3500 50  0000 C BNN
+F 1 "TST" H 4600 3550 50  0001 C CNN
+F 2 "Jonas_Connectors:TP_0.6mm" H 4600 3300 60  0001 C CNN
+F 3 "" H 4600 3300 60  0000 C CNN
+	1    4600 3300
+	1    0    0    -1  
+$EndComp
+$Comp
+L TST TP5
+U 1 1 55C7E85C
+P 4700 3500
+F 0 "TP5" H 4700 3700 50  0000 C BNN
+F 1 "TST" H 4700 3750 50  0001 C CNN
+F 2 "Jonas_Connectors:TP_0.6mm" H 4700 3500 60  0001 C CNN
+F 3 "" H 4700 3500 60  0000 C CNN
+	1    4700 3500
+	1    0    0    -1  
+$EndComp
+$Comp
+L TST TP6
+U 1 1 55C7E8DD
+P 4800 3700
+F 0 "TP6" H 4800 3900 50  0000 C BNN
+F 1 "TST" H 4800 3950 50  0001 C CNN
+F 2 "Jonas_Connectors:TP_0.6mm" H 4800 3700 60  0001 C CNN
+F 3 "" H 4800 3700 60  0000 C CNN
+	1    4800 3700
+	1    0    0    -1  
+$EndComp
+$Comp
+L TST TP7
+U 1 1 55C7E959
+P 4900 3900
+F 0 "TP7" H 4900 4100 50  0000 C BNN
+F 1 "TST" H 4900 4150 50  0001 C CNN
+F 2 "Jonas_Connectors:TP_0.6mm" H 4900 3900 60  0001 C CNN
+F 3 "" H 4900 3900 60  0000 C CNN
+	1    4900 3900
+	1    0    0    -1  
+$EndComp
+Connection ~ 4600 3300
+Connection ~ 4700 3500
+Connection ~ 4800 3700
+Connection ~ 4900 3900
 $EndSCHEMATC

@@ -4,10 +4,10 @@ PROJECT := m4audio
 #SRCS += src/
 
 # Sources to build for target only
-ARM_SRCS += src/target/stm32.c
+ARM_SRCS += src/target/platform-stm32.c
 
 # Sources to build for host only
-HOST_SRCS += src/host/host.c
+HOST_SRCS += src/host/platform-host.c
 
 # -------------------------------------
 
@@ -23,18 +23,18 @@ ARMOBJDUMP := $(PREFIX)-objdump
 LIBOPENCM3_DIR := libopencm3
 LIBOPENCM3 := $(LIBOPENCM3_DIR)/lib/libopencm3_stm32f4.a
 
-ARM_LDFLAGS += -L$(LIBOPENCM3_DIR)/lib/ -lopencm3_stm32f4
-ARM_LDFLAGS += -lc -lnosys -nostartfiles -Wl,--gc-sections
-# FIXME: Cortex-M4 flags for using FPU
-ARM_LDFLAGS += -mthumb -march=armv7 -mfix-cortex-m3-ldrd -msoft-float
+ARM_LDFLAGS := -L$(LIBOPENCM3_DIR)/lib/
+ARM_LDFLAGS += -nostartfiles --specs=nosys.specs --specs=nano.specs
+ARM_LDFLAGS += -Wl,--gc-sections
 
-ARM_COMMONFLAGS += -I. -Isrc -Isrc/target -O1 -fno-common -g -fconserve-stack
-ARM_COMMONFLAGS += -mcpu=cortex-m4 -mthumb -DSTM32F4
+ARM_COMMONFLAGS := -I. -Isrc -Isrc/target -O1 -fno-common -g -fconserve-stack
+#ARM_COMMONFLAGS += -funsafe-math-optimizations
 ARM_COMMONFLAGS += -Wall -Wextra
 ARM_COMMONFLAGS += -I$(LIBOPENCM3_DIR)/include/
+
 HOST_COMMONFLAGS += -I. -Isrc -Isrc/host -O0 -fno-common -g -Wall -Wextra -DHOST
 
-CFLAGS += -std=c99 -Werror-implicit-function-declaration
+CFLAGS += -std=c99 -Werror-implicit-function-declaration -Iinclude
 
 ARM_OBJS += $(ARM_SRCS:src/%.c=$(BUILDDIR)/%.o)
 HOST_OBJS += $(HOST_SRCS:src/%.c=$(HOSTBUILDDIR)/%.o)
@@ -42,9 +42,10 @@ HOST_OBJS += $(HOST_SRCS:src/%.c=$(HOSTBUILDDIR)/%.o)
 # -------------------------------------
 
 .PHONY: all
-all: $(BUILDDIR)/feedtrough.elf
+all: $(BUILDDIR)/feedthrough.elf
 
-# Generate linker script for the MCU
+# Generate linker script for the MCU and let libopencm3 set up the appropriate
+# compiler flags
 DEVICE=stm32f405rg
 SRCLIBDIR=$(LIBOPENCM3_DIR)
 CC=$(ARMCC)
@@ -63,9 +64,9 @@ $(LIBOPENCM3):
 # ARM rules
 
 $(BUILDDIR)/%.o: src/%.c Makefile
-	@echo ARMCC $< --\> $@
+#	@echo ARMCC $< --\> $@
 	@mkdir -p $(dir $@)
-	@$(ARMCC) -MD $(ARM_COMMONFLAGS) $(CFLAGS) -c -o $@ $<
+	$(ARMCC) -MD $(ARM_COMMONFLAGS) $(CFLAGS) -c -o $@ $<
 
 %.bin: %.elf
 	@echo flattening $@
@@ -78,9 +79,9 @@ $(BUILDDIR)/%.o: src/%.c Makefile
 # -------------------------------------
 # ARM executables rules
 
-$(BUILDDIR)/feedtrough.elf: $(ARM_OBJS) $(BUILDDIR)/feedthrough/feedthrough.o $(LIBOPENCM3) $(LDSCRIPT)
-	@echo ARMLD $@
-	@$(ARMLD) -o $@ $(ARM_OBJS) $(BUILDDIR)/feedthrough/feedthrough.o $(ARM_LDFLAGS)
+$(BUILDDIR)/feedthrough.elf: $(ARM_OBJS) $(BUILDDIR)/feedthrough/feedthrough.o $(LIBOPENCM3) $(LDSCRIPT)
+#	@echo ARMLD $@
+	$(ARMLD) -o $@ $(ARM_OBJS) $(BUILDDIR)/feedthrough/feedthrough.o $(ARM_COMMONFLAGS) $(CFLAGS) $(ARM_LDFLAGS)
 
 # -------------------------------------
 # Host rules

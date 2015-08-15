@@ -34,7 +34,7 @@ ARM_COMMONFLAGS += -I$(LIBOPENCM3_DIR)/include/
 
 HOST_COMMONFLAGS += -I. -Isrc -Isrc/host -O0 -fno-common -g -Wall -Wextra -DHOST
 
-CFLAGS += -std=c99 -Werror-implicit-function-declaration -Iinclude
+CFLAGS += -std=c11 -Werror-implicit-function-declaration -Iinclude
 
 ARM_OBJS += $(ARM_SRCS:src/%.c=$(BUILDDIR)/%.o)
 HOST_OBJS += $(HOST_SRCS:src/%.c=$(HOSTBUILDDIR)/%.o)

@@ -3,7 +3,7 @@
 
 #define CODEC_SAMPLES_PER_FRAME 16
 
-typedef uint16_t CodecIntSample;
+typedef int16_t CodecIntSample;
 
 typedef struct {
     CodecIntSample s[2][CODEC_SAMPLES_PER_FRAME];

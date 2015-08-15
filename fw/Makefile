@@ -9,6 +9,7 @@ ARM_SRCS += src/target/wm8731.c
 
 # Sources to build for host only
 HOST_SRCS += src/host/platform-host.c
+HOST_SRCS += src/host/jackclient.c
 
 # -------------------------------------
 
@@ -40,6 +41,9 @@ ARM_COMMONFLAGS += -I$(LIBOPENCM3_DIR)/include/
 HOST_COMMONFLAGS := -I. -Isrc -Isrc/host -Iinclude
 HOST_COMMONFLAGS += -std=c11 -O1 -fno-common -g -Wall -Wextra -DHOST
 HOST_COMMONFLAGS += -Wall -Wextra -Werror-implicit-function-declaration
+HOST_COMMONFLAGS += $(shell pkg-config --cflags jack)
+
+HOST_LDFLAGS += $(shell pkg-config --libs jack)
 
 ARM_OBJS += $(ARM_SRCS:src/%.c=$(BUILDDIR)/%.o)
 HOST_OBJS += $(HOST_SRCS:src/%.c=$(HOSTBUILDDIR)/%.o)
@@ -106,8 +110,8 @@ $(HOSTBUILDDIR)/feedthrough.elf: $(HOST_OBJS) $(HOSTBUILDDIR)/feedthrough/feedth
 
 # -------------------------------------
 
--include $(BUILDDIR)/src/*.d
--include $(HOSTBUILDDIR)/src/*.d
+-include $(BUILDDIR)/*.d $(BUILDDIR)/*/*.d
+-include $(HOSTBUILDDIR)/*.d $(HOSTBUILDDIR)/*/*.d
 
 .PHONY: clean
 clean:

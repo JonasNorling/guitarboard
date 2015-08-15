@@ -2,7 +2,7 @@
 #include "platform.h"
 #include "codec.h"
 
-void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
+static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
 {
     *out = *in;
 }

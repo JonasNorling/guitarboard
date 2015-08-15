@@ -1,15 +1,12 @@
 #include "platform.h"
-#include "codec.h"
+#include "jackclient.h"
 
 void platformInit(void)
 {
+    jackClientInit();
 }
 
 void platformMainloop(void)
 {
-}
-
-void codecRegisterProcessFunction(CodecProcess fn)
-{
-    (void)fn;
+    jackClientRun();
 }

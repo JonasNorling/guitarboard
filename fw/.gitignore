@@ -1,2 +1,3 @@
 build
+build_host
 stm32f405rg.ld

@@ -17,9 +17,12 @@ HOSTBUILDDIR := build_host
 
 PREFIX := arm-none-eabi
 ARMCC := $(PREFIX)-gcc
-ARMLD := $(PREFIX)-gcc
+# Make libopencm3's makefiles happy
+CC := $(ARMCC)
 ARMOBJCOPY := $(PREFIX)-objcopy
 ARMOBJDUMP := $(PREFIX)-objdump
+
+HOST_CC := gcc
 
 LIBOPENCM3_DIR := libopencm3
 LIBOPENCM3 := $(LIBOPENCM3_DIR)/lib/libopencm3_stm32f4.a
@@ -28,14 +31,15 @@ ARM_LDFLAGS := -L$(LIBOPENCM3_DIR)/lib/
 ARM_LDFLAGS += -nostartfiles --specs=nosys.specs --specs=nano.specs
 ARM_LDFLAGS += -Wl,--gc-sections
 
-ARM_COMMONFLAGS := -I. -Isrc -Isrc/target -O1 -fno-common -g -fconserve-stack
+ARM_COMMONFLAGS := -I. -Isrc -Isrc/target -Iinclude
+ARM_COMMONFLAGS += -std=c11 -O1 -fno-common -g -fconserve-stack
 #ARM_COMMONFLAGS += -funsafe-math-optimizations
-ARM_COMMONFLAGS += -Wall -Wextra
+ARM_COMMONFLAGS += -Wall -Wextra -Werror-implicit-function-declaration
 ARM_COMMONFLAGS += -I$(LIBOPENCM3_DIR)/include/
 
-HOST_COMMONFLAGS += -I. -Isrc -Isrc/host -O0 -fno-common -g -Wall -Wextra -DHOST
-
-CFLAGS += -std=c11 -Werror-implicit-function-declaration -Iinclude
+HOST_COMMONFLAGS := -I. -Isrc -Isrc/host -Iinclude
+HOST_COMMONFLAGS += -std=c11 -O1 -fno-common -g -Wall -Wextra -DHOST
+HOST_COMMONFLAGS += -Wall -Wextra -Werror-implicit-function-declaration
 
 ARM_OBJS += $(ARM_SRCS:src/%.c=$(BUILDDIR)/%.o)
 HOST_OBJS += $(HOST_SRCS:src/%.c=$(HOSTBUILDDIR)/%.o)
@@ -43,7 +47,7 @@ HOST_OBJS += $(HOST_SRCS:src/%.c=$(HOSTBUILDDIR)/%.o)
 # -------------------------------------
 
 .PHONY: all
-all: $(BUILDDIR)/feedthrough.elf
+all: $(BUILDDIR)/feedthrough.elf $(HOSTBUILDDIR)/feedthrough.elf
 
 $(LIBOPENCM3_DIR)/ld/Makefile.linker:
 	git submodule update --init $(LIBOPENCM3_DIR)
@@ -52,7 +56,6 @@ $(LIBOPENCM3_DIR)/ld/Makefile.linker:
 # compiler flags
 DEVICE=stm32f405rg
 SRCLIBDIR=$(LIBOPENCM3_DIR)
-CC=$(ARMCC)
 include $(LIBOPENCM3_DIR)/ld/Makefile.linker
 ARM_LDFLAGS += -Wl,-T$(LDSCRIPT)
 
@@ -67,10 +70,10 @@ $(LIBOPENCM3):
 # -------------------------------------
 # ARM rules
 
-$(BUILDDIR)/%.o: src/%.c Makefile
-#	@echo ARMCC $< --\> $@
+$(BUILDDIR)/%.o: src/%.c Makefile $(LIBOPENCM3)
+	@echo ARMCC $< --\> $@
 	@mkdir -p $(dir $@)
-	$(ARMCC) -MD $(ARM_COMMONFLAGS) $(CFLAGS) -c -o $@ $<
+	@$(ARMCC) -MD $(ARM_COMMONFLAGS) $(CFLAGS) -c -o $@ $<
 
 %.bin: %.elf
 	@echo flattening $@
@@ -84,16 +87,22 @@ $(BUILDDIR)/%.o: src/%.c Makefile
 # ARM executables rules
 
 $(BUILDDIR)/feedthrough.elf: $(ARM_OBJS) $(BUILDDIR)/feedthrough/feedthrough.o $(LIBOPENCM3) $(LDSCRIPT)
-#	@echo ARMLD $@
-	$(ARMLD) -o $@ $(ARM_OBJS) $(BUILDDIR)/feedthrough/feedthrough.o $(ARM_COMMONFLAGS) $(CFLAGS) $(ARM_LDFLAGS)
+	@echo ARMLD $@
+	@$(ARMCC) -o $@ $(ARM_OBJS) $(BUILDDIR)/feedthrough/feedthrough.o \
+		$(ARM_COMMONFLAGS) $(CFLAGS) $(ARM_LDFLAGS)
 
 # -------------------------------------
 # Host rules
 
-$(HOSTBUILDDIR)/%.o: %.c Makefile
+$(HOSTBUILDDIR)/%.o: src/%.c Makefile
 	@echo CC $< --\> $@
 	@mkdir -p $(dir $@)
-	@$(CC) -MD $(HOST_COMMONFLAGS) $(CFLAGS) -c -o $@ $<
+	@$(HOST_CC) -MD $(HOST_COMMONFLAGS) $(HOST_CFLAGS) -c -o $@ $<
+
+$(HOSTBUILDDIR)/feedthrough.elf: $(HOST_OBJS) $(HOSTBUILDDIR)/feedthrough/feedthrough.o
+	@echo LD $@
+	@$(HOST_CC) -o $@ $(HOST_OBJS) $(HOSTBUILDDIR)/feedthrough/feedthrough.o \
+		$(HOST_COMMONFLAGS) $(HOST_CFLAGS) $(HOST_LDFLAGS)
 
 # -------------------------------------
 

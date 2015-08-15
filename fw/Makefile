@@ -44,6 +44,9 @@ HOST_OBJS += $(HOST_SRCS:src/%.c=$(HOSTBUILDDIR)/%.o)
 .PHONY: all
 all: $(BUILDDIR)/feedthrough.elf
 
+$(LIBOPENCM3_DIR)/ld/Makefile.linker:
+	git submodule update --init $(LIBOPENCM3_DIR)
+
 # Generate linker script for the MCU and let libopencm3 set up the appropriate
 # compiler flags
 DEVICE=stm32f405rg

@@ -35,15 +35,15 @@ static int process(jack_nframes_t nframes, void* arg)
         AudioBuffer out;
 
         for (size_t sample = 0; sample < CODEC_SAMPLES_PER_FRAME; sample++) {
-            in.s[0][sample] = ilBuf[subframe + sample] * scale;
-            in.s[1][sample] = irBuf[subframe + sample] * scale;
+            in.s[sample][0] = ilBuf[subframe + sample] * scale;
+            in.s[sample][1] = irBuf[subframe + sample] * scale;
         }
 
         appProcess(&in, &out);
 
         for (size_t sample = 0; sample < CODEC_SAMPLES_PER_FRAME; sample++) {
-            olBuf[subframe + sample] = out.s[0][sample] * invscale;
-            orBuf[subframe + sample] = out.s[1][sample] * invscale;
+            olBuf[subframe + sample] = out.s[sample][0] * invscale;
+            orBuf[subframe + sample] = out.s[sample][1] * invscale;
         }
     }
 

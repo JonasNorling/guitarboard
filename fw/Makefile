@@ -74,6 +74,14 @@ $(LIBOPENCM3):
 # -------------------------------------
 # ARM rules
 
+flash: $(BUILDDIR)/feedthrough.elf
+	openocd -f interface/stlink-v2.cfg \
+		    -f board/stm32f4discovery.cfg \
+		    -c "init" -c "reset init" \
+		    -c "flash write_image erase $<" \
+		    -c "reset" \
+		    -c "shutdown"
+
 $(BUILDDIR)/%.o: src/%.c Makefile $(LIBOPENCM3)
 	@echo ARMCC $< --\> $@
 	@mkdir -p $(dir $@)

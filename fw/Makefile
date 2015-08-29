@@ -53,6 +53,7 @@ HOST_OBJS += $(HOST_SRCS:src/%.c=$(HOSTBUILDDIR)/%.o)
 .PHONY: all
 all: $(BUILDDIR)/feedthrough.elf $(HOSTBUILDDIR)/feedthrough.elf
 all: $(BUILDDIR)/sine.elf $(HOSTBUILDDIR)/sine.elf
+all: $(BUILDDIR)/delay.elf $(HOSTBUILDDIR)/delay.elf
 
 $(LIBOPENCM3_DIR)/ld/Makefile.linker:
 	git submodule update --init $(LIBOPENCM3_DIR)
@@ -109,6 +110,11 @@ $(BUILDDIR)/sine.elf: $(ARM_OBJS) $(BUILDDIR)/examples/sine.o $(LIBOPENCM3) $(LD
 	@$(ARMCC) -o $@ $(ARM_OBJS) $(BUILDDIR)/examples/sine.o \
 		$(ARM_COMMONFLAGS) $(CFLAGS) $(ARM_LDFLAGS)
 
+$(BUILDDIR)/delay.elf: $(ARM_OBJS) $(BUILDDIR)/examples/delay.o $(LIBOPENCM3) $(LDSCRIPT)
+	@echo ARMLD $@
+	@$(ARMCC) -o $@ $(ARM_OBJS) $(BUILDDIR)/examples/delay.o \
+		$(ARM_COMMONFLAGS) $(CFLAGS) $(ARM_LDFLAGS)
+
 # -------------------------------------
 # Host rules
 
@@ -125,6 +131,11 @@ $(HOSTBUILDDIR)/feedthrough.elf: $(HOST_OBJS) $(HOSTBUILDDIR)/examples/feedthrou
 $(HOSTBUILDDIR)/sine.elf: $(HOST_OBJS) $(HOSTBUILDDIR)/examples/sine.o
 	@echo LD $@
 	@$(HOST_CC) -o $@ $(HOST_OBJS) $(HOSTBUILDDIR)/examples/sine.o \
+		$(HOST_COMMONFLAGS) $(HOST_CFLAGS) $(HOST_LDFLAGS)
+
+$(HOSTBUILDDIR)/delay.elf: $(HOST_OBJS) $(HOSTBUILDDIR)/examples/delay.o
+	@echo LD $@
+	@$(HOST_CC) -o $@ $(HOST_OBJS) $(HOSTBUILDDIR)/examples/delay.o \
 		$(HOST_COMMONFLAGS) $(HOST_CFLAGS) $(HOST_LDFLAGS)
 		
 # -------------------------------------

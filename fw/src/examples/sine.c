@@ -7,6 +7,7 @@
 
 static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
 {
+    setLed(LED_RED, true);
     (void)in;
 
     const float f[2] = { 261.63, 329.63 };
@@ -26,6 +27,7 @@ static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
             pos[1] -= 2*PI;
         }
     }
+    setLed(LED_RED, false);
 }
 
 int main()

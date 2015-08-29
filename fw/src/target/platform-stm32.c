@@ -3,6 +3,7 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/dma.h>
 #include <libopencm3/cm3/nvic.h>
+#include <libopencmsis/core_cm3.h>
 #include <unistd.h>
 #include <stdbool.h>
 
@@ -22,16 +23,19 @@ void platformInit(void)
 
     // Enable LED pins and turn them on
     gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO3 | GPIO7);
-    gpio_set(GPIOC, GPIO3 | GPIO7);
+    setLed(LED_GREEN, true);
+    setLed(LED_RED, true);
 
     codecInit();
 }
 
 void platformMainloop(void)
 {
-    gpio_clear(GPIOC, GPIO3 | GPIO7);
+    setLed(LED_GREEN, false);
+    setLed(LED_RED, false);
+
     while (true) {
-        gpio_toggle(GPIOC, GPIO7); // Green LED
+        __WFI();
     }
 }
 

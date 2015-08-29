@@ -5,6 +5,7 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/spi.h>
 #include <libopencm3/cm3/nvic.h>
+#include "platform.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -144,7 +145,6 @@ void codecInit(void)
 
 void dma1_stream4_isr(void)
 {
-    gpio_set(GPIOC, GPIO3); // Red LED
     dma_clear_interrupt_flags(DMA1, DAC_DMA_STREAM, DMA_TCIF);
 
     int16_t* outBuffer = dma_get_target(DMA1, DAC_DMA_STREAM) ?
@@ -157,8 +157,6 @@ void dma1_stream4_isr(void)
     if (appProcess) {
         appProcess((const AudioBuffer*)inBuffer, (AudioBuffer*)outBuffer);
     }
-
-    gpio_clear(GPIOC, GPIO3); // Red LED
 }
 
 void codecRegisterProcessFunction(CodecProcess fn)

@@ -30,7 +30,7 @@ LIBOPENCM3 := $(LIBOPENCM3_DIR)/lib/libopencm3_stm32f4.a
 
 ARM_LDFLAGS := -L$(LIBOPENCM3_DIR)/lib/
 ARM_LDFLAGS += -nostartfiles --specs=nosys.specs --specs=nano.specs
-ARM_LDFLAGS += -Wl,--gc-sections
+ARM_LDFLAGS += -Wl,--gc-sections -lm
 
 ARM_COMMONFLAGS := -I. -Isrc -Isrc/target -Iinclude
 ARM_COMMONFLAGS += -std=c11 -O1 -fno-common -g -fconserve-stack
@@ -43,7 +43,7 @@ HOST_COMMONFLAGS += -std=c11 -O1 -fno-common -g -Wall -Wextra -DHOST
 HOST_COMMONFLAGS += -Wall -Wextra -Werror-implicit-function-declaration
 HOST_COMMONFLAGS += $(shell pkg-config --cflags jack)
 
-HOST_LDFLAGS += $(shell pkg-config --libs jack)
+HOST_LDFLAGS += $(shell pkg-config --libs jack) -lm
 
 ARM_OBJS += $(ARM_SRCS:src/%.c=$(BUILDDIR)/%.o)
 HOST_OBJS += $(HOST_SRCS:src/%.c=$(HOSTBUILDDIR)/%.o)
@@ -52,6 +52,7 @@ HOST_OBJS += $(HOST_SRCS:src/%.c=$(HOSTBUILDDIR)/%.o)
 
 .PHONY: all
 all: $(BUILDDIR)/feedthrough.elf $(HOSTBUILDDIR)/feedthrough.elf
+all: $(BUILDDIR)/sine.elf $(HOSTBUILDDIR)/sine.elf
 
 $(LIBOPENCM3_DIR)/ld/Makefile.linker:
 	git submodule update --init $(LIBOPENCM3_DIR)
@@ -74,7 +75,7 @@ $(LIBOPENCM3):
 # -------------------------------------
 # ARM rules
 
-flash: $(BUILDDIR)/feedthrough.elf
+flash: $(BUILDDIR)/sine.elf
 	openocd -f interface/stlink-v2.cfg \
 		    -f board/stm32f4discovery.cfg \
 		    -c "init" -c "reset init" \
@@ -98,9 +99,14 @@ $(BUILDDIR)/%.o: src/%.c Makefile $(LIBOPENCM3)
 # -------------------------------------
 # ARM executables rules
 
-$(BUILDDIR)/feedthrough.elf: $(ARM_OBJS) $(BUILDDIR)/feedthrough/feedthrough.o $(LIBOPENCM3) $(LDSCRIPT)
+$(BUILDDIR)/feedthrough.elf: $(ARM_OBJS) $(BUILDDIR)/examples/feedthrough.o $(LIBOPENCM3) $(LDSCRIPT)
 	@echo ARMLD $@
-	@$(ARMCC) -o $@ $(ARM_OBJS) $(BUILDDIR)/feedthrough/feedthrough.o \
+	@$(ARMCC) -o $@ $(ARM_OBJS) $(BUILDDIR)/examples/feedthrough.o \
+		$(ARM_COMMONFLAGS) $(CFLAGS) $(ARM_LDFLAGS)
+
+$(BUILDDIR)/sine.elf: $(ARM_OBJS) $(BUILDDIR)/examples/sine.o $(LIBOPENCM3) $(LDSCRIPT)
+	@echo ARMLD $@
+	@$(ARMCC) -o $@ $(ARM_OBJS) $(BUILDDIR)/examples/sine.o \
 		$(ARM_COMMONFLAGS) $(CFLAGS) $(ARM_LDFLAGS)
 
 # -------------------------------------
@@ -111,11 +117,16 @@ $(HOSTBUILDDIR)/%.o: src/%.c Makefile
 	@mkdir -p $(dir $@)
 	@$(HOST_CC) -MD $(HOST_COMMONFLAGS) $(HOST_CFLAGS) -c -o $@ $<
 
-$(HOSTBUILDDIR)/feedthrough.elf: $(HOST_OBJS) $(HOSTBUILDDIR)/feedthrough/feedthrough.o
+$(HOSTBUILDDIR)/feedthrough.elf: $(HOST_OBJS) $(HOSTBUILDDIR)/examples/feedthrough.o
 	@echo LD $@
-	@$(HOST_CC) -o $@ $(HOST_OBJS) $(HOSTBUILDDIR)/feedthrough/feedthrough.o \
+	@$(HOST_CC) -o $@ $(HOST_OBJS) $(HOSTBUILDDIR)/examples/feedthrough.o \
 		$(HOST_COMMONFLAGS) $(HOST_CFLAGS) $(HOST_LDFLAGS)
 
+$(HOSTBUILDDIR)/sine.elf: $(HOST_OBJS) $(HOSTBUILDDIR)/examples/sine.o
+	@echo LD $@
+	@$(HOST_CC) -o $@ $(HOST_OBJS) $(HOSTBUILDDIR)/examples/sine.o \
+		$(HOST_COMMONFLAGS) $(HOST_CFLAGS) $(HOST_LDFLAGS)
+		
 # -------------------------------------
 
 -include $(BUILDDIR)/*.d $(BUILDDIR)/*/*.d

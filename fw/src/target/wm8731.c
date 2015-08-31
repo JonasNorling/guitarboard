@@ -10,6 +10,8 @@
 #include <stdint.h>
 #include <string.h>
 
+unsigned _Atomic samplecounter = 0;
+
 static const uint32_t DAC_DMA_STREAM = DMA_STREAM4; // SPI2_TX
 static const uint32_t DAC_DMA_CHANNEL = DMA_SxCR_CHSEL_0;
 static const uint32_t ADC_DMA_STREAM = DMA_STREAM3; // I2S2_EXT_RX
@@ -122,6 +124,7 @@ void codecInit(void)
     dma_enable_stream(DMA1, DAC_DMA_STREAM);
 
     // Configure the DMA engine to stream data from the ADC.
+    dma_stream_reset(DMA1, ADC_DMA_STREAM);
     dma_set_peripheral_address(DMA1, ADC_DMA_STREAM, (intptr_t)&SPI_DR(I2S2_EXT_BASE));
     dma_set_memory_address(DMA1, ADC_DMA_STREAM, (intptr_t)adcBuffer[0]);
     dma_set_memory_address_1(DMA1, ADC_DMA_STREAM, (intptr_t)adcBuffer[1]);
@@ -157,6 +160,10 @@ void dma1_stream4_isr(void)
     if (appProcess) {
         appProcess((const AudioBuffer*)inBuffer, (AudioBuffer*)outBuffer);
     }
+
+    samplecounter += CODEC_SAMPLES_PER_FRAME;
+
+    platformFrameFinishedCB();
 }
 
 void codecRegisterProcessFunction(CodecProcess fn)

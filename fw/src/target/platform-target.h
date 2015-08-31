@@ -14,3 +14,5 @@ static inline void setLed(enum Led led, bool state)
         break;
     }
 }
+
+void platformFrameFinishedCB(void);

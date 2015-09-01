@@ -9,7 +9,10 @@
 typedef int16_t CodecIntSample;
 
 typedef struct {
-  CodecIntSample s[CODEC_SAMPLES_PER_FRAME][2] __attribute__((aligned(4)));
+    union {
+        CodecIntSample s[CODEC_SAMPLES_PER_FRAME][2] __attribute__((aligned(4)));
+        CodecIntSample m[2*CODEC_SAMPLES_PER_FRAME] __attribute__((aligned(4)));
+    };
 } AudioBuffer;
 
 typedef void(*CodecProcess)(const AudioBuffer* restrict in, AudioBuffer* restrict out);

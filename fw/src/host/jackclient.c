@@ -20,7 +20,6 @@ static int process(jack_nframes_t nframes, void* arg)
 {
     (void)arg;
 
-    printf("Jack gave us %u frames\n", nframes);
     jack_default_audio_sample_t* ilBuf = jack_port_get_buffer(il, nframes);
     jack_default_audio_sample_t* irBuf = jack_port_get_buffer(ir, nframes);
     jack_default_audio_sample_t* olBuf = jack_port_get_buffer(ol, nframes);

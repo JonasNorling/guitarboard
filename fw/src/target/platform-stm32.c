@@ -19,7 +19,6 @@ static const uint32_t ADC_DMA_CHANNEL = DMA_SxCR_CHSEL_0;
 #define ADC_PINS 6
 static volatile uint16_t adcSamples[ADC_PINS]; // 12-bit value
 static volatile uint16_t adcValues[ADC_PINS]; // 16-bit value
-static volatile unsigned conversions;
 
 static void adcInit(void)
 {
@@ -95,12 +94,13 @@ void platformMainloop(void)
         __WFI();
 
         if (samplecounter >= lastprint + CODEC_SAMPLERATE) {
-            printf("%u samples, %u conversions, %x %x %x %x %x %x\n",
-                    samplecounter, conversions,
+            printf("%u samples, peak %5u %5u. ADC %x %x %x %x %x %x\n",
+                    samplecounter, peakIn, peakOut,
                     adcValues[0], adcValues[1],
                     adcValues[2], adcValues[3],
                     adcValues[4], adcValues[5]);
 
+            peakIn = peakOut = 0;
             lastprint += CODEC_SAMPLERATE;
         }
     }

@@ -35,12 +35,12 @@ ARM_LDFLAGS += -Wl,--gc-sections -lm
 ARM_COMMONFLAGS := -I. -Isrc -Isrc/target -Iinclude
 ARM_COMMONFLAGS += -std=c11 -O1 -fno-common -g -fconserve-stack
 #ARM_COMMONFLAGS += -funsafe-math-optimizations
-ARM_COMMONFLAGS += -Wall -Wextra -Werror-implicit-function-declaration
+ARM_COMMONFLAGS += -Wall -Wextra -Werror-implicit-function-declaration -Werror
 ARM_COMMONFLAGS += -I$(LIBOPENCM3_DIR)/include/
 
 HOST_COMMONFLAGS := -I. -Isrc -Isrc/host -Iinclude
 HOST_COMMONFLAGS += -std=c11 -O1 -fno-common -g -Wall -Wextra -DHOST
-HOST_COMMONFLAGS += -Wall -Wextra -Werror-implicit-function-declaration
+HOST_COMMONFLAGS += -Wall -Wextra -Werror-implicit-function-declaration  -Werror
 HOST_COMMONFLAGS += $(shell pkg-config --cflags jack)
 
 HOST_LDFLAGS += $(shell pkg-config --libs jack) -lm
@@ -54,6 +54,7 @@ HOST_OBJS += $(HOST_SRCS:src/%.c=$(HOSTBUILDDIR)/%.o)
 all: $(BUILDDIR)/feedthrough.elf $(HOSTBUILDDIR)/feedthrough.elf
 all: $(BUILDDIR)/sine.elf $(HOSTBUILDDIR)/sine.elf
 all: $(BUILDDIR)/delay.elf $(HOSTBUILDDIR)/delay.elf
+all: $(BUILDDIR)/fxbox.elf $(HOSTBUILDDIR)/fxbox.elf
 
 $(LIBOPENCM3_DIR)/ld/Makefile.linker:
 	git submodule update --init $(LIBOPENCM3_DIR)
@@ -76,7 +77,9 @@ $(LIBOPENCM3):
 # -------------------------------------
 # ARM rules
 
-flash: $(BUILDDIR)/sine.elf
+flash: flash-fxbox
+
+flash-%: $(BUILDDIR)/%.elf
 	openocd -f interface/stlink-v2.cfg \
 		    -f board/stm32f4discovery.cfg \
 		    -c "init" -c "reset init" \
@@ -100,19 +103,14 @@ $(BUILDDIR)/%.o: src/%.c Makefile $(LIBOPENCM3)
 # -------------------------------------
 # ARM executables rules
 
-$(BUILDDIR)/feedthrough.elf: $(ARM_OBJS) $(BUILDDIR)/examples/feedthrough.o $(LIBOPENCM3) $(LDSCRIPT)
-	@echo ARMLD $@
-	@$(ARMCC) -o $@ $(ARM_OBJS) $(BUILDDIR)/examples/feedthrough.o \
-		$(ARM_COMMONFLAGS) $(CFLAGS) $(ARM_LDFLAGS)
+$(BUILDDIR)/feedthrough.elf: $(ARM_OBJS) $(BUILDDIR)/examples/feedthrough.o
+$(BUILDDIR)/sine.elf: $(ARM_OBJS) $(BUILDDIR)/examples/sine.o
+$(BUILDDIR)/delay.elf: $(ARM_OBJS) $(BUILDDIR)/examples/delay.o
+$(BUILDDIR)/fxbox.elf: $(ARM_OBJS) $(BUILDDIR)/fxbox/fxbox.o $(BUILDDIR)/fxbox/wahwah.o
 
-$(BUILDDIR)/sine.elf: $(ARM_OBJS) $(BUILDDIR)/examples/sine.o $(LIBOPENCM3) $(LDSCRIPT)
+$(BUILDDIR)/%.elf: $(LIBOPENCM3) $(LDSCRIPT)
 	@echo ARMLD $@
-	@$(ARMCC) -o $@ $(ARM_OBJS) $(BUILDDIR)/examples/sine.o \
-		$(ARM_COMMONFLAGS) $(CFLAGS) $(ARM_LDFLAGS)
-
-$(BUILDDIR)/delay.elf: $(ARM_OBJS) $(BUILDDIR)/examples/delay.o $(LIBOPENCM3) $(LDSCRIPT)
-	@echo ARMLD $@
-	@$(ARMCC) -o $@ $(ARM_OBJS) $(BUILDDIR)/examples/delay.o \
+	@$(ARMCC) -o $@ $(filter %.o,$^) \
 		$(ARM_COMMONFLAGS) $(CFLAGS) $(ARM_LDFLAGS)
 
 # -------------------------------------
@@ -124,18 +122,13 @@ $(HOSTBUILDDIR)/%.o: src/%.c Makefile
 	@$(HOST_CC) -MD $(HOST_COMMONFLAGS) $(HOST_CFLAGS) -c -o $@ $<
 
 $(HOSTBUILDDIR)/feedthrough.elf: $(HOST_OBJS) $(HOSTBUILDDIR)/examples/feedthrough.o
-	@echo LD $@
-	@$(HOST_CC) -o $@ $(HOST_OBJS) $(HOSTBUILDDIR)/examples/feedthrough.o \
-		$(HOST_COMMONFLAGS) $(HOST_CFLAGS) $(HOST_LDFLAGS)
-
 $(HOSTBUILDDIR)/sine.elf: $(HOST_OBJS) $(HOSTBUILDDIR)/examples/sine.o
-	@echo LD $@
-	@$(HOST_CC) -o $@ $(HOST_OBJS) $(HOSTBUILDDIR)/examples/sine.o \
-		$(HOST_COMMONFLAGS) $(HOST_CFLAGS) $(HOST_LDFLAGS)
-
 $(HOSTBUILDDIR)/delay.elf: $(HOST_OBJS) $(HOSTBUILDDIR)/examples/delay.o
+$(HOSTBUILDDIR)/fxbox.elf: $(HOST_OBJS) $(HOSTBUILDDIR)/fxbox/fxbox.o $(HOSTBUILDDIR)/fxbox/wahwah.o
+
+$(HOSTBUILDDIR)/%.elf:
 	@echo LD $@
-	@$(HOST_CC) -o $@ $(HOST_OBJS) $(HOSTBUILDDIR)/examples/delay.o \
+	@$(HOST_CC) -o $@ $(filter %.o,$^) \
 		$(HOST_COMMONFLAGS) $(HOST_CFLAGS) $(HOST_LDFLAGS)
 		
 # -------------------------------------

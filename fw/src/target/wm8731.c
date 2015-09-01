@@ -10,7 +10,9 @@
 #include <stdint.h>
 #include <string.h>
 
-unsigned _Atomic samplecounter = 0;
+_Atomic unsigned samplecounter;
+_Atomic CodecIntSample peakIn;
+_Atomic CodecIntSample peakOut;
 
 static const uint32_t DAC_DMA_STREAM = DMA_STREAM4; // SPI2_TX
 static const uint32_t DAC_DMA_CHANNEL = DMA_SxCR_CHSEL_0;
@@ -162,6 +164,22 @@ void dma1_stream4_isr(void)
     }
 
     samplecounter += CODEC_SAMPLES_PER_FRAME;
+    CodecIntSample framePeakOut = 0;
+    CodecIntSample framePeakIn = 0;
+    for (unsigned s = 0; s < BUFFER_SAMPLES; s++) {
+        if (outBuffer[s] > framePeakOut) {
+            framePeakOut = outBuffer[s];
+        }
+        if (inBuffer[s] > framePeakIn) {
+            framePeakIn = inBuffer[s];
+        }
+    }
+    if (framePeakOut > peakOut) {
+        peakOut = framePeakOut;
+    }
+    if (framePeakIn > peakIn) {
+        peakIn = framePeakIn;
+    }
 
     platformFrameFinishedCB();
 }

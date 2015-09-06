@@ -13,7 +13,7 @@
 
 #define CLAMP(v, min, max) (v) > (max) ? (max) : ((v) < (min) ? (min) : (v))
 
-static void samplesToFloat(const AudioBuffer* restrict in,
+static inline void samplesToFloat(const AudioBuffer* restrict in,
         FloatAudioBuffer* restrict out)
 {
     for (unsigned s = 0; s < 2 * CODEC_SAMPLES_PER_FRAME; s++) {
@@ -21,7 +21,7 @@ static void samplesToFloat(const AudioBuffer* restrict in,
     }
 }
 
-static void floatToSamples(const FloatAudioBuffer* restrict in,
+static inline void floatToSamples(const FloatAudioBuffer* restrict in,
         AudioBuffer* restrict out)
 {
     for (unsigned s = 0; s < 2 * CODEC_SAMPLES_PER_FRAME; s++) {
@@ -41,4 +41,28 @@ static bool willClip(const FloatAudioBuffer* restrict in)
         }
     }
     return false;
+}
+
+/**
+ * Pick a non-integer position from a lookup table or delay line
+ */
+static inline float linterpolate(const CodecIntSample* table, unsigned tablelen, float pos)
+{
+    const unsigned intpos = (unsigned)pos;
+    const float s0 = table[intpos % tablelen];
+    const float s1 = table[(intpos + 1) % tablelen];
+    const float frac = pos - intpos;
+    return s0 * (1.0f - frac) + s1 * frac;
+}
+
+/**
+ * Pick a non-integer position from a lookup table or delay line
+ */
+static inline float linterpolateFloat(const float* table, unsigned tablelen, float pos)
+{
+    const unsigned intpos = (unsigned)pos;
+    const float s0 = table[intpos % tablelen];
+    const float s1 = table[(intpos + 1) % tablelen];
+    const float frac = pos - intpos;
+    return s0 * (1.0f - frac) + s1 * frac;
 }

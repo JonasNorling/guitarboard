@@ -24,7 +24,7 @@ int main()
     printf("Starting fxbox\n");
 
     codecRegisterProcessFunction(process);
-    runWahwah();
+    runVibrato();
     platformMainloop();
 
     return 0;

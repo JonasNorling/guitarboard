@@ -83,6 +83,11 @@ void platformInit(void)
     codecInit();
 }
 
+uint16_t knob(uint8_t n)
+{
+    return adcValues[n];
+}
+
 void platformMainloop(void)
 {
     setLed(LED_GREEN, false);

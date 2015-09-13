@@ -13,3 +13,4 @@ enum Led {
 
 void platformInit(void);
 void platformMainloop(void);
+void platformRegisterIdleCallback(void(*cb)(void));

@@ -20,6 +20,8 @@ static const uint32_t ADC_DMA_CHANNEL = DMA_SxCR_CHSEL_0;
 static volatile uint16_t adcSamples[ADC_PINS]; // 12-bit value
 static volatile uint16_t adcValues[ADC_PINS]; // 16-bit value
 
+static void(*idleCallback)(void);
+
 static void adcInit(void)
 {
     // Set up analog inputs
@@ -88,6 +90,11 @@ uint16_t knob(uint8_t n)
     return adcValues[n];
 }
 
+void platformRegisterIdleCallback(void(*cb)(void))
+{
+    idleCallback = cb;
+}
+
 void platformMainloop(void)
 {
     setLed(LED_GREEN, false);
@@ -107,6 +114,10 @@ void platformMainloop(void)
 
             peakIn = peakOut = 0;
             lastprint += CODEC_SAMPLERATE;
+        }
+
+        if (idleCallback) {
+            idleCallback();
         }
     }
 }

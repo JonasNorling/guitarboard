@@ -10,6 +10,8 @@
 enum Effects {
     EFFECT_WAHWAH,
     EFFECT_VIBRATO,
+    EFFECT_DELAY,
+    EFFECTS_COUNT
 };
 
 static enum Effects currentEffect;
@@ -24,20 +26,36 @@ static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
     }
 }
 
+static void setEffect(enum Effects fx)
+{
+    codecRegisterProcessFunction(process);
+    for (unsigned i = 0; i < 100000; i++) __asm__("nop");
+    switch (fx) {
+    case EFFECT_WAHWAH:
+        runWahwah();
+        break;
+    case EFFECT_VIBRATO:
+        runVibrato();
+        break;
+    case EFFECT_DELAY:
+        runDelay();
+        break;
+    default:
+        break;
+    }
+    currentEffect = fx;
+}
+
 static void idleCallback()
 {
     const uint16_t fxSelector = knob(5);
-    if (fxSelector < 30000 && currentEffect != EFFECT_WAHWAH) {
-        codecRegisterProcessFunction(process);
-        for (unsigned i = 0; i < 100000; i++) __asm__("nop");
-        runWahwah();
-        currentEffect = EFFECT_WAHWAH;
-    }
-    else if (fxSelector > 35000 && currentEffect != EFFECT_VIBRATO) {
-        codecRegisterProcessFunction(process);
-        for (unsigned i = 0; i < 100000; i++) __asm__("nop");
-        runVibrato();
-        currentEffect = EFFECT_VIBRATO;
+    for (enum Effects fx = 0; fx < EFFECTS_COUNT; fx++) {
+        if (fxSelector > fx * (UINT16_MAX/EFFECTS_COUNT) + 1000 &&
+                fxSelector < (fx + 1) * (UINT16_MAX/EFFECTS_COUNT) - 1000) {
+            if (currentEffect != fx) {
+                setEffect(fx);
+            }
+        }
     }
 }
 

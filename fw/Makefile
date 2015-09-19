@@ -35,12 +35,12 @@ ARM_LDFLAGS += -Wl,--gc-sections -lm
 ARM_COMMONFLAGS := -I. -Isrc -Isrc/target -Iinclude
 ARM_COMMONFLAGS += -std=c11 -O1 -fno-common -g -fconserve-stack
 #ARM_COMMONFLAGS += -funsafe-math-optimizations
-ARM_COMMONFLAGS += -Wall -Wextra -Werror-implicit-function-declaration -Werror
+ARM_COMMONFLAGS += -Wall -Wextra -Werror-implicit-function-declaration -Werror -Wno-error=unused-variable
 ARM_COMMONFLAGS += -I$(LIBOPENCM3_DIR)/include/
 
 HOST_COMMONFLAGS := -I. -Isrc -Isrc/host -Iinclude
 HOST_COMMONFLAGS += -std=c11 -O1 -fno-common -g -Wall -Wextra -DHOST
-HOST_COMMONFLAGS += -Wall -Wextra -Werror-implicit-function-declaration  -Werror
+HOST_COMMONFLAGS += -Wall -Wextra -Werror-implicit-function-declaration  -Werror -Wno-error=unused-variable
 HOST_COMMONFLAGS += $(shell pkg-config --cflags jack)
 
 HOST_LDFLAGS += $(shell pkg-config --libs jack) -lm

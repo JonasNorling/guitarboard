@@ -15,15 +15,16 @@ static float delayline_r[DELAY_LINE_LENGTH];
 static unsigned writepos;
 static float phase;
 
-static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
+static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out,
+        const struct Params* params)
 {
     setLed(LED_GREEN, true);
     setLed(LED_RED, false);
 
-    const uint16_t dist = knob(2);
-    const float speed = exp2f(RAMP_U16(knob(1), 0.0001f, 0.005f)) - 1.0f;
-    const float depth = RAMP_U16(knob(0), 0.0f, (MAX_DEPTH-1));
-    const float phasediff = RAMP_U16(knob(3), 0.0f, PI/4);
+    const float dist = params->knob2;
+    const float speed = exp2f(RAMP(params->knob1, 0.0001f, 0.005f)) - 1.0f;
+    const float depth = params->pedal * (MAX_DEPTH-1);
+    const float phasediff = params->knob3 * PI/4;
 
     FloatAudioBuffer buf1;
 
@@ -50,17 +51,16 @@ static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
     }
 
     for (unsigned s = 0; s < 2 * CODEC_SAMPLES_PER_FRAME; s++) {
-        buf1.m[s] = RAMP_U16(dist, saturateSoft(buf1.m[s]),
-                tubeSaturate(buf1.m[s]));
+        buf1.m[s] = RAMP(dist, saturateSoft(buf1.m[s]), tubeSaturate(buf1.m[s]));
     }
 
     floatToSamples(&buf1, out);
     setLed(LED_GREEN, false);
 }
 
-void runVibrato(void)
+FxProcess runVibrato(void)
 {
     memset(delayline_l, 0, sizeof(delayline_l));
     memset(delayline_r, 0, sizeof(delayline_r));
-    codecRegisterProcessFunction(process);
+    return process;
 }

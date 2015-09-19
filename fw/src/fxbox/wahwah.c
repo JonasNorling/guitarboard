@@ -10,20 +10,18 @@
 static FloatBiquadCoeffs coeffs;
 static FloatBiquadState bqstate;
 
-static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
+static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out,
+        const struct Params* params)
 {
     setLed(LED_GREEN, true);
     setLed(LED_RED, false);
 
-    const uint16_t wah = UINT16_MAX - knob(0); // My pedal is backwards
-    const uint16_t q = knob(1);
-    const uint16_t dist = knob(2);
+    const float dist = params->knob2;
     // Set centre wah bandpass frequency to 200..800 Hz
-    const float fwah = RAMP_U16(wah, HZ2OMEGA(200), HZ2OMEGA(800));
+    const float wah = RAMP(params->pedal, HZ2OMEGA(200), HZ2OMEGA(800));
     // Set bandpass Q to 1..32, on an exponential scale
-    const float fq = exp2f(RAMP_U16(q, 0.0f, 5.0f));
-    bqMakeBandpass(&coeffs, fwah, fq);
-    coeffs.gain *= RAMP_U16(wah, 1.0f, 2.0f);
+    const float q = exp2f(RAMP(params->knob1, 0.0f, 5.0f));
+    bqMakeBandpass(&coeffs, wah, q);
 
     FloatAudioBuffer buf1, buf2;
 
@@ -34,16 +32,15 @@ static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
     }
 
     for (unsigned s = 0; s < 2 * CODEC_SAMPLES_PER_FRAME; s++) {
-        buf1.m[s] = RAMP_U16(dist, saturateSoft(buf2.m[s]),
-                tubeSaturate(buf2.m[s]));
+        buf1.m[s] = RAMP(dist, saturateSoft(buf2.m[s]), tubeSaturate(buf2.m[s]));
     }
 
     floatToSamples(&buf1, out);
     setLed(LED_GREEN, false);
 }
 
-void runWahwah(void)
+FxProcess runWahwah(void)
 {
     bqMakeBandpass(&coeffs, 1.5f, 1.0f);
-    codecRegisterProcessFunction(process);
+    return process;
 }

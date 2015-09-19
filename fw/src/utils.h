@@ -11,6 +11,8 @@
 #define RAMP_U16(v, start, end) ((end * ((float)(v))/UINT16_MAX) + \
         (start * ((float)(UINT16_MAX-(v)))/UINT16_MAX))
 
+#define RAMP(v, start, end) ((end) * (v) + (start * (1.0f-(v))))
+
 #define CLAMP(v, min, max) (v) > (max) ? (max) : ((v) < (min) ? (min) : (v))
 
 static inline void samplesToFloat(const AudioBuffer* restrict in,
@@ -33,7 +35,7 @@ static inline void floatToSamples(const FloatAudioBuffer* restrict in,
  * Return true if there are samples that can't be represented as a 16-bit
  * integer in the buffer.
  */
-static bool willClip(const FloatAudioBuffer* restrict in)
+static inline bool willClip(const FloatAudioBuffer* restrict in)
 {
     for (unsigned s = 0; s < 2 * CODEC_SAMPLES_PER_FRAME; s++) {
         if (in->m[s] < INT16_MIN || in->m[s] > INT16_MAX) {

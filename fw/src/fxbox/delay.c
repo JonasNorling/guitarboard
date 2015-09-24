@@ -13,7 +13,7 @@ static CodecIntSample delayline_r[DELAY_LINE_LENGTH];
 static unsigned writepos;
 
 struct Tap {
-    unsigned delay;
+    float delay;
     float route[2][2]; // Levels to play L/R delay lines in L/R channel
 };
 
@@ -28,20 +28,20 @@ static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out,
     const float feedback = params->knob3;
     const float confusion = params->knob1;
 
-    static float filteredLength = 0;
-    filteredLength = 0.999f * filteredLength + 0.001 * params->knob4;
-    const unsigned length = filteredLength * DELAY_LINE_LENGTH;
-
-    const struct Tap taps[TAPS] = {
-            { length, { { 1.0f, 0.0f }, { 0.0f, 1.0f } } },
-            { length / 2, { { 0.0f, -1.0f * confusion }, { 0.5f * confusion, 0.0f } } },
-            { length / 3, { { 0.0f, 0.3f * confusion }, { -0.6f * confusion, 0.0f } } },
-            { length / 4, { { 0.1f * confusion, -0.2f * confusion }, { -0.2f * confusion, 0.1f * confusion } } },
-    };
-
     FloatAudioBuffer buf1 = { .m = { 0 } };
 
     for (unsigned s = 0; s < CODEC_SAMPLES_PER_FRAME; s++) {
+        static float filteredLength = 0;
+        filteredLength = 0.9999f * filteredLength + 0.0001f * params->knob4;
+        const float length = filteredLength * DELAY_LINE_LENGTH;
+
+        const struct Tap taps[TAPS] = {
+                { length, { { 1.0f, 0.0f }, { 0.0f, 1.0f } } },
+                { length / 2, { { 0.0f, -1.0f * confusion }, { 0.5f * confusion, 0.0f } } },
+                { length / 3, { { 0.0f, 0.3f * confusion }, { -0.6f * confusion, 0.0f } } },
+                { length / 4, { { 0.1f * confusion, -0.2f * confusion }, { -0.2f * confusion, 0.1f * confusion } } },
+        };
+
         for (unsigned tap = 0; tap < TAPS; tap++) {
             if (taps[tap].delay) {
                 float delayed[2] = { linterpolate(delayline_l, DELAY_LINE_LENGTH,

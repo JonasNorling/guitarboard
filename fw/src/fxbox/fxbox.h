@@ -16,3 +16,4 @@ typedef void(*FxProcess)(const AudioBuffer* restrict in,
 FxProcess runWahwah(void);
 FxProcess runVibrato(void);
 FxProcess runDelay(void);
+FxProcess runPitcher(void);

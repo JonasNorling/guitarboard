@@ -12,7 +12,7 @@ enum Effects {
     EFFECT_WAHWAH,
     EFFECT_VIBRATO,
     EFFECT_DELAY,
-    EFFECT_NONE1,
+    EFFECT_PITCHER,
     EFFECT_NONE2,
     EFFECT_NONE3,
     EFFECTS_COUNT
@@ -57,6 +57,9 @@ static void setEffect(enum Effects fx)
         break;
     case EFFECT_DELAY:
         currentEffectFn = runDelay();
+        break;
+    case EFFECT_PITCHER:
+        currentEffectFn = runPitcher();
         break;
     default:
         break;

@@ -79,6 +79,11 @@ $(LIBOPENCM3):
 
 flash: flash-fxbox
 
+dfu: dfu-fxbox
+
+dfu-%: $(BUILDDIR)/%.bin
+	dfu-util -a 0 -s 0x08000000 -D $<
+
 flash-%: $(BUILDDIR)/%.elf
 	openocd -f interface/stlink-v2.cfg \
 		    -f board/stm32f4discovery.cfg \
@@ -136,7 +141,7 @@ $(HOSTBUILDDIR)/%.elf:
 	@echo LD $@
 	@$(HOST_CC) -o $@ $(filter %.o,$^) \
 		$(HOST_COMMONFLAGS) $(HOST_CFLAGS) $(HOST_LDFLAGS)
-		
+
 # -------------------------------------
 
 -include $(BUILDDIR)/*.d $(BUILDDIR)/*/*.d

@@ -28,19 +28,19 @@ LIBS:opto
 LIBS:atmel
 LIBS:contrib
 LIBS:valves
-LIBS:stm32
 LIBS:wm8731
 LIBS:jack_trs
+LIBS:stm32
 LIBS:m4audio-cache
 EELAYER 25 0
 EELAYER END
 $Descr A3 16535 11693
 encoding utf-8
 Sheet 1 2
-Title "Cortex-M4 audio DSP board"
+Title "Cortex-M4 Guitar Board"
 Date "2015-08-03"
-Rev ""
-Comp "Jonas Norling"
+Rev "B"
+Comp "Jonas Norling - Elemental Instruments"
 Comment1 ""
 Comment2 ""
 Comment3 ""
@@ -462,8 +462,6 @@ F 3 "" H 4150 3500 60  0000 C CNN
 	1    4150 3500
 	1    0    0    -1  
 $EndComp
-Text Notes 950  10050 0    79   ~ 16
-FIXME:\n- What is the power requirement? How big LDO needed?\n- Check decoupling and analog rails\n- Verify footprint for opamp\n- CODED clock requirement (is something from the MCU ok?)\n- Test points on I2S and SPI?\n
 $Comp
 L C C7
 U 1 1 55C0575D

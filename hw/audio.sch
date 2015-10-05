@@ -28,20 +28,20 @@ LIBS:opto
 LIBS:atmel
 LIBS:contrib
 LIBS:valves
-LIBS:stm32
 LIBS:wm8731
 LIBS:jack_trs
+LIBS:stm32
 LIBS:m4audio-cache
 EELAYER 25 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 2 2
-Title "Cortex-M4 audio DSP board"
+Title "Cortex-M4 Guitar Board"
 Date "2015-08-03"
-Rev ""
-Comp "Jonas Norling"
-Comment1 ""
+Rev "B"
+Comp "Jonas Norling - elemental.se"
+Comment1 "Audio codec"
 Comment2 ""
 Comment3 ""
 Comment4 ""

@@ -1,4 +1,4 @@
-update=Sat 08 Aug 2015 11:49:00 AM CEST
+update=Mon 05 Oct 2015 06:10:22 PM CEST
 version=1
 last_client=kicad
 [pcbnew]
@@ -58,6 +58,6 @@ LibName26=opto
 LibName27=atmel
 LibName28=contrib
 LibName29=valves
-LibName30=/home/jonas/src/kicad-library/library/stm32
-LibName31=wm8731
-LibName32=jack_trs
+LibName30=wm8731
+LibName31=jack_trs
+LibName32=stm32

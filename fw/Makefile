@@ -5,6 +5,7 @@ PROJECT := m4audio
 
 # Sources to build for target only
 ARM_SRCS += src/target/platform-stm32.c
+ARM_SRCS += src/target/usb.c
 ARM_SRCS += src/target/wm8731.c
 
 # Sources to build for host only

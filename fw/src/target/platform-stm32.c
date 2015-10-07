@@ -12,6 +12,7 @@
 #include "platform.h"
 #include "wm8731.h"
 #include "codec.h"
+#include "usb.h"
 
 static const uint32_t ADC_DMA_STREAM = DMA_STREAM0;
 static const uint32_t ADC_DMA_CHANNEL = DMA_SxCR_CHSEL_0;
@@ -83,6 +84,7 @@ void platformInit(void)
 
     adcInit();
     codecInit();
+    usbInit();
 }
 
 uint16_t knob(uint8_t n)
@@ -120,20 +122,4 @@ void platformMainloop(void)
             idleCallback();
         }
     }
-}
-
-ssize_t _write(int fd __attribute__((unused)), const void* buf, size_t count)
-{
-    if (!(ITM_TER[0] & 1)) {
-        // Tracing not enabled
-        return count;
-    }
-
-    const char* charbuf = buf;
-    for (size_t i = 0; i < count; i++) {
-        while (!(ITM_STIM8(0) & ITM_STIM_FIFOREADY))
-            ;
-        ITM_STIM8(0) = *charbuf++;
-    }
-    return count;
 }

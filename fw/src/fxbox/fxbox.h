@@ -10,8 +10,8 @@ struct Params {
     float knob4;
 };
 
-typedef void(*FxProcess)(const AudioBuffer* restrict in,
-        AudioBuffer* restrict out, const struct Params* params);
+typedef void(*FxProcess)(const FloatAudioBuffer* restrict in,
+        FloatAudioBuffer* restrict out, const struct Params* params);
 
 FxProcess runWahwah(void);
 FxProcess runVibrato(void);

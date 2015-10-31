@@ -17,18 +17,14 @@ struct Tap {
     float route[2][2]; // Levels to play L/R delay lines in L/R channel
 };
 
-static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out,
-        const struct Params* params)
+static void process(const FloatAudioBuffer* restrict in,
+        FloatAudioBuffer* restrict out, const struct Params* params)
 {
     setLed(LED_GREEN, true);
-    setLed(LED_RED, false);
 
-    const float dist = params->knob2;
     const float input = params->pedal * 1.5f;
     const float feedback = params->knob3;
     const float confusion = params->knob1;
-
-    FloatAudioBuffer buf1 = { .m = { 0 } };
 
     for (unsigned s = 0; s < CODEC_SAMPLES_PER_FRAME; s++) {
         static float filteredLength = 0;
@@ -48,29 +44,20 @@ static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out,
                         DELAY_LINE_LENGTH + writepos - taps[tap].delay),
                         linterpolate(delayline_r, DELAY_LINE_LENGTH,
                                 DELAY_LINE_LENGTH + writepos - taps[tap].delay) };
-                buf1.s[s][0] += taps[tap].route[0][0] * delayed[0] + taps[tap].route[0][1] * delayed[1];
-                buf1.s[s][1] += taps[tap].route[1][0] * delayed[0] + taps[tap].route[1][1] * delayed[1];
+                out->s[s][0] += taps[tap].route[0][0] * delayed[0] + taps[tap].route[0][1] * delayed[1];
+                out->s[s][1] += taps[tap].route[1][0] * delayed[0] + taps[tap].route[1][1] * delayed[1];
             }
         }
-        delayline_l[writepos] = saturateSoft(input * in->s[s][0] + feedback * buf1.s[s][0]);
-        delayline_r[writepos] = saturateSoft(input * in->s[s][1] + feedback * buf1.s[s][1]);
+        delayline_l[writepos] = saturateSoft(input * in->s[s][0] + feedback * out->s[s][0]);
+        delayline_r[writepos] = saturateSoft(input * in->s[s][1] + feedback * out->s[s][1]);
 
         writepos = (writepos + 1) % DELAY_LINE_LENGTH;
 
         // Always feed through the input audio
-        buf1.s[s][0] += in->s[s][0];
-        buf1.s[s][1] += in->s[s][1];
+        out->s[s][0] += in->s[s][0];
+        out->s[s][1] += in->s[s][1];
     }
 
-    if (willClip(&buf1)) {
-        setLed(LED_RED, true);
-    }
-
-    for (unsigned s = 0; s < 2 * CODEC_SAMPLES_PER_FRAME; s++) {
-        buf1.m[s] = RAMP(dist, saturateSoft(buf1.m[s]), tubeSaturate(buf1.m[s]));
-    }
-
-    floatToSamples(&buf1, out);
     setLed(LED_GREEN, false);
 }
 

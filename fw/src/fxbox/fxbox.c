@@ -7,6 +7,7 @@
 #include "platform.h"
 #include "codec.h"
 #include "utils.h"
+#include "waveshaper.h"
 
 enum Effects {
     EFFECT_WAHWAH,
@@ -21,6 +22,19 @@ enum Effects {
 static enum Effects currentEffect = EFFECTS_COUNT;
 static FxProcess currentEffectFn;
 
+
+static void feedthrough(const FloatAudioBuffer* restrict in,
+        FloatAudioBuffer* restrict out, const struct Params* params)
+{
+    (void)params;
+    *out = *in;
+}
+
+static FxProcess runFeedthrough(void)
+{
+    return feedthrough;
+}
+
 static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
 {
     struct Params params = {
@@ -31,13 +45,36 @@ static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
             RAMP_U16(knob(3), 1.0f, 0.0f),
             RAMP_U16(knob(4), 1.0f, 0.0f),
     };
+    const float gain = params.knob2;
+
     if (currentEffectFn) {
-        currentEffectFn(in, out, &params);
+        FloatAudioBuffer fin;
+        FloatAudioBuffer fout = { .m = {0}};
+
+        samplesToFloat(in, &fin);
+
+        currentEffectFn(&fin, &fout, &params);
+
+        if (willClip(&fout)) {
+            setLed(LED_RED, true);
+        }
+        else {
+            setLed(LED_RED, false);
+        }
+
+        const float gainExp = exp2f(6*gain);
+        const float tubeMix = CLAMP(2*gain, 0.0f, 1.0f);
+        for (unsigned s = 0; s < 2 * CODEC_SAMPLES_PER_FRAME; s++) {
+            fout.m[s] *= gainExp;
+            fout.m[s] = RAMP(tubeMix, saturateSoft(fout.m[s]), tubeSaturate(fout.m[s]));
+        }
+
+        floatToSamples(&fout, out);
+
         return;
     }
 
     // Fade out whatever is still in the output buffers
-    (void)in;
     for (unsigned s = 0; s < CODEC_SAMPLES_PER_FRAME; s++) {
         out->s[s][0] = out->s[s][0] >> 1;
         out->s[s][1] = out->s[s][1] >> 1;
@@ -62,7 +99,7 @@ static void setEffect(enum Effects fx)
         currentEffectFn = runPitcher();
         break;
     default:
-        break;
+        currentEffectFn = runFeedthrough();
     }
     currentEffect = fx;
 }

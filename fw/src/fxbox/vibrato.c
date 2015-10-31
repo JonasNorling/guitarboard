@@ -15,18 +15,14 @@ static float delayline_r[DELAY_LINE_LENGTH];
 static unsigned writepos;
 static float phase;
 
-static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out,
-        const struct Params* params)
+static void process(const FloatAudioBuffer* restrict in,
+        FloatAudioBuffer* restrict out, const struct Params* params)
 {
     setLed(LED_GREEN, true);
-    setLed(LED_RED, false);
 
-    const float dist = params->knob2;
     const float speed = exp2f(RAMP(params->knob1, 0.0001f, 0.005f)) - 1.0f;
     const float depth = params->pedal * (MAX_DEPTH-1);
     const float phasediff = params->knob3 * PI/4;
-
-    FloatAudioBuffer buf1;
 
     for (unsigned s = 0; s < CODEC_SAMPLES_PER_FRAME; s++) {
         delayline_l[writepos] = in->s[s][0];
@@ -34,9 +30,9 @@ static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out,
 
         const float offset0 = depth * sinf(phase + phasediff);
         const float offset1 = depth * sinf(phase - phasediff);
-        buf1.s[s][0] = linterpolateFloat(delayline_l, DELAY_LINE_LENGTH, offset0 +
+        out->s[s][0] = linterpolateFloat(delayline_l, DELAY_LINE_LENGTH, offset0 +
                 (writepos + (DELAY_LINE_LENGTH/2)));
-        buf1.s[s][1] = linterpolateFloat(delayline_r, DELAY_LINE_LENGTH, offset1 +
+        out->s[s][1] = linterpolateFloat(delayline_r, DELAY_LINE_LENGTH, offset1 +
                 (writepos + (DELAY_LINE_LENGTH/2)));
 
         writepos = (writepos + 1) % DELAY_LINE_LENGTH;
@@ -46,15 +42,6 @@ static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out,
         }
     }
 
-    if (willClip(&buf1)) {
-        setLed(LED_RED, true);
-    }
-
-    for (unsigned s = 0; s < 2 * CODEC_SAMPLES_PER_FRAME; s++) {
-        buf1.m[s] = RAMP(dist, saturateSoft(buf1.m[s]), tubeSaturate(buf1.m[s]));
-    }
-
-    floatToSamples(&buf1, out);
     setLed(LED_GREEN, false);
 }
 

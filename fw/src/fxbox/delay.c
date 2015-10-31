@@ -11,6 +11,7 @@
 static CodecIntSample delayline_l[DELAY_LINE_LENGTH];
 static CodecIntSample delayline_r[DELAY_LINE_LENGTH];
 static unsigned writepos;
+static unsigned octaverPhase = 0;
 
 struct Tap {
     float delay;
@@ -25,6 +26,7 @@ static void process(const FloatAudioBuffer* restrict in,
     const float input = params->pedal * 1.5f;
     const float feedback = params->knob3;
     const float confusion = params->knob1;
+    const float octaveMix = 0.5f * confusion;
 
     for (unsigned s = 0; s < CODEC_SAMPLES_PER_FRAME; s++) {
         static float filteredLength = 0;
@@ -48,9 +50,17 @@ static void process(const FloatAudioBuffer* restrict in,
                 out->s[s][1] += taps[tap].route[1][0] * delayed[0] + taps[tap].route[1][1] * delayed[1];
             }
         }
+
+        // FIXME: There is a discontinuity when octaverPhase wraps.
+        out->s[s][0] += octaveMix * linterpolate(delayline_l, DELAY_LINE_LENGTH,
+                DELAY_LINE_LENGTH + writepos - length + octaverPhase);
+        out->s[s][1] += octaveMix * linterpolate(delayline_r, DELAY_LINE_LENGTH,
+                DELAY_LINE_LENGTH + writepos - length + octaverPhase);
+
         delayline_l[writepos] = saturateSoft(input * in->s[s][0] + feedback * out->s[s][0]);
         delayline_r[writepos] = saturateSoft(input * in->s[s][1] + feedback * out->s[s][1]);
 
+        octaverPhase = (octaverPhase + 1) % (unsigned)length;
         writepos = (writepos + 1) % DELAY_LINE_LENGTH;
 
         // Always feed through the input audio

@@ -112,10 +112,10 @@ $(BUILDDIR)/%.o: src/%.c Makefile $(LIBOPENCM3)
 $(BUILDDIR)/feedthrough.elf: $(ARM_OBJS) $(BUILDDIR)/examples/feedthrough.o
 $(BUILDDIR)/sine.elf: $(ARM_OBJS) $(BUILDDIR)/examples/sine.o
 $(BUILDDIR)/delay.elf: $(ARM_OBJS) $(BUILDDIR)/examples/delay.o
-$(BUILDDIR)/fxbox.elf: $(ARM_OBJS) $(BUILDDIR)/fxbox/fxbox.o \
-	$(BUILDDIR)/fxbox/vibrato.o $(BUILDDIR)/fxbox/wahwah.o \
-	$(BUILDDIR)/fxbox/delay.o $(BUILDDIR)/fxbox/pitcher.o \
-	$(BUILDDIR)/biquad.o
+$(BUILDDIR)/fxbox.elf: $(ARM_OBJS) $(BUILDDIR)/fxbox.o \
+	$(BUILDDIR)/dsp/vibrato.o $(BUILDDIR)/dsp/wahwah.o \
+	$(BUILDDIR)/dsp/delay.o $(BUILDDIR)/dsp/pitcher.o \
+	$(BUILDDIR)/dsp/biquad.o
 
 $(BUILDDIR)/%.elf: $(LIBOPENCM3) $(LDSCRIPT)
 	@echo ARMLD $@
@@ -133,10 +133,10 @@ $(HOSTBUILDDIR)/%.o: src/%.c Makefile
 $(HOSTBUILDDIR)/feedthrough.elf: $(HOST_OBJS) $(HOSTBUILDDIR)/examples/feedthrough.o
 $(HOSTBUILDDIR)/sine.elf: $(HOST_OBJS) $(HOSTBUILDDIR)/examples/sine.o
 $(HOSTBUILDDIR)/delay.elf: $(HOST_OBJS) $(HOSTBUILDDIR)/examples/delay.o
-$(HOSTBUILDDIR)/fxbox.elf: $(HOST_OBJS) $(HOSTBUILDDIR)/fxbox/fxbox.o \
-	$(HOSTBUILDDIR)/fxbox/vibrato.o $(HOSTBUILDDIR)/fxbox/wahwah.o \
-	$(HOSTBUILDDIR)/fxbox/delay.o $(HOSTBUILDDIR)/fxbox/pitcher.o \
-	$(HOSTBUILDDIR)/biquad.o
+$(HOSTBUILDDIR)/fxbox.elf: $(HOST_OBJS) $(HOSTBUILDDIR)/fxbox.o \
+	$(HOSTBUILDDIR)/dsp/vibrato.o $(HOSTBUILDDIR)/dsp/wahwah.o \
+	$(HOSTBUILDDIR)/dsp/delay.o $(HOSTBUILDDIR)/dsp/pitcher.o \
+	$(HOSTBUILDDIR)/dsp/biquad.o
 
 $(HOSTBUILDDIR)/%.elf:
 	@echo LD $@

@@ -1,6 +1,7 @@
+#include "../dsp/biquad.h"
+
 #include <math.h>
 
-#include "biquad.h"
 #include "codec.h"
 
 /*

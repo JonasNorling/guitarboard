@@ -15,6 +15,4 @@ static inline void setLed(enum Led led, bool state)
     }
 }
 
-uint16_t knob(uint8_t n);
-
 void platformFrameFinishedCB(void);

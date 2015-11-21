@@ -1,3 +1,7 @@
+/*
+ * Platform specific details for running on STM32F405RG.
+ */
+
 #include <libopencm3/cm3/itm.h>
 #include <libopencm3/stm32/adc.h>
 #include <libopencm3/stm32/gpio.h>
@@ -14,20 +18,54 @@
 #include "codec.h"
 #include "usb.h"
 
+#define ADC_PINS KNOB_COUNT
+
+// STM32F405RG pin map
+static const struct {
+    uint32_t port;
+    uint16_t pinno;
+    uint8_t adcno;
+} pins[KNOB_COUNT] = {
+        { GPIOA, GPIO0, 0 },
+        { GPIOA, GPIO1, 1 },
+        { GPIOA, GPIO2, 2 },
+        { GPIOA, GPIO3, 3 },
+        { GPIOC, GPIO0, 10 },
+        { GPIOC, GPIO1, 11 },
+};
+
+static const KnobConfig defaultKnobConfig[KNOB_COUNT] = {
+        { .analog = true },
+        { .analog = true },
+        { .analog = true },
+        { .analog = true },
+        { .analog = true },
+        { .analog = true },
+};
+
 static const uint32_t ADC_DMA_STREAM = DMA_STREAM0;
 static const uint32_t ADC_DMA_CHANNEL = DMA_SxCR_CHSEL_0;
 
-#define ADC_PINS 6
 static volatile uint16_t adcSamples[ADC_PINS]; // 12-bit value
 static volatile uint16_t adcValues[ADC_PINS]; // 16-bit value
 
 static void(*idleCallback)(void);
 
-static void adcInit(void)
+static void adcInit(const KnobConfig* knobConfig)
 {
-    // Set up analog inputs
-    gpio_mode_setup(GPIOA, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0 | GPIO1 | GPIO2 | GPIO3);
-    gpio_mode_setup(GPIOC, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, GPIO0 | GPIO1);
+    // Set up analog input pins and build a channel list
+    uint8_t channels[ADC_PINS];
+    size_t channelCount = 0;
+    for (size_t i = 0; i < KNOB_COUNT; i++) {
+        if (knobConfig[i].analog) {
+            gpio_mode_setup(pins[i].port, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, pins[i].pinno);
+            channels[channelCount++] = pins[i].adcno;
+        }
+    }
+
+    if (channelCount == 0) {
+        return;
+    }
 
     adc_off(ADC1);
     adc_enable_scan_mode(ADC1);
@@ -35,14 +73,13 @@ static void adcInit(void)
 
     adc_power_on(ADC1);
 
-    const uint8_t channels[ADC_PINS] = { 0, 1, 2, 3, 10, 11 };
-    adc_set_regular_sequence(ADC1, ADC_PINS, (uint8_t*)channels);
+    adc_set_regular_sequence(ADC1, channelCount, channels);
 
     // Configure the DMA engine to stream data from the ADC.
     dma_stream_reset(DMA1, ADC_DMA_STREAM);
     dma_set_peripheral_address(DMA2, ADC_DMA_STREAM, (intptr_t)&ADC_DR(ADC1));
     dma_set_memory_address(DMA2, ADC_DMA_STREAM, (intptr_t)adcSamples);
-    dma_set_number_of_data(DMA2, ADC_DMA_STREAM, ADC_PINS);
+    dma_set_number_of_data(DMA2, ADC_DMA_STREAM, channelCount);
     dma_channel_select(DMA2, ADC_DMA_STREAM, ADC_DMA_CHANNEL);
     dma_set_transfer_mode(DMA2, ADC_DMA_STREAM, DMA_SxCR_DIR_PERIPHERAL_TO_MEM);
     dma_set_memory_size(DMA2, ADC_DMA_STREAM, DMA_SxCR_MSIZE_16BIT);
@@ -57,6 +94,17 @@ static void adcInit(void)
     adc_start_conversion_regular(ADC1);
 }
 
+static void ioInit(const KnobConfig* knobConfig)
+{
+    for (size_t i = 0; i < KNOB_COUNT; i++) {
+        if (!knobConfig[i].analog) {
+            gpio_mode_setup(pins[i].port, GPIO_MODE_INPUT,
+                    knobConfig[i].pullup ? GPIO_PUPD_PULLUP : GPIO_PUPD_NONE,
+                            pins[i].pinno);
+        }
+    }
+}
+
 void platformFrameFinishedCB(void)
 {
     // Lowpass filter analog inputs
@@ -65,8 +113,12 @@ void platformFrameFinishedCB(void)
     }
 }
 
-void platformInit(void)
+void platformInit(const KnobConfig* knobConfig)
 {
+    if (!knobConfig) {
+        knobConfig = defaultKnobConfig;
+    }
+
     rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_168MHZ]);
     rcc_periph_clock_enable(RCC_GPIOA);
     rcc_periph_clock_enable(RCC_GPIOB);
@@ -82,7 +134,8 @@ void platformInit(void)
     setLed(LED_GREEN, true);
     setLed(LED_RED, true);
 
-    adcInit();
+    adcInit(knobConfig);
+    ioInit(knobConfig);
     codecInit();
     usbInit();
 }
@@ -90,6 +143,11 @@ void platformInit(void)
 uint16_t knob(uint8_t n)
 {
     return adcValues[n];
+}
+
+bool button(uint8_t n)
+{
+    return gpio_get(pins[n].port, pins[n].pinno);
 }
 
 void platformRegisterIdleCallback(void(*cb)(void))

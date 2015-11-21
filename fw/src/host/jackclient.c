@@ -55,6 +55,16 @@ static void sigterm(int sig)
     die = true;
 }
 
+void codedSetInVolume(int vol)
+{
+    (void)vol;
+}
+
+void codedSetOutVolume(int voldB)
+{
+    (void)voldB;
+}
+
 void codecRegisterProcessFunction(CodecProcess fn)
 {
     appProcess = fn;

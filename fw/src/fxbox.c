@@ -1,3 +1,9 @@
+/*
+ * This is the main file defining the software that goes into an effects box
+ * built in a wah-wah pedal case. It is controlled by one mode selection knob,
+ * four parameter knobs and the pedal position.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -144,7 +150,7 @@ static void idleCallback()
 
 int main()
 {
-    platformInit();
+    platformInit(NULL);
 
     printf("Starting fxbox\n");
 

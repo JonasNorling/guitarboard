@@ -45,20 +45,28 @@ static void codecWriteReg(unsigned reg, unsigned value)
 
 static void codecConfig()
 {
-    const int voldB = -10;
-    const unsigned volume = 121 + voldB;
-    const unsigned involume = 0x17; // 0dB
-
     codecWriteReg(0x0f, 0b000000000); // Reset!
-    codecWriteReg(0x00, involume & 0x1f); // Left line in, unmute
-    codecWriteReg(0x01, involume & 0x1f); // Right line in, unmute
-    codecWriteReg(0x02, volume & 0x7f); // Left headphone
-    codecWriteReg(0x03, volume & 0x7f); // Right headphone
+    codedSetInVolume(0);
+    codedSetOutVolume(-10);
     codecWriteReg(0x04, 0b000010010); // Analog path - select DAC, no bypass
     codecWriteReg(0x05, 0b000000000); // Digital path - disable soft mute
     codecWriteReg(0x06, 0b000000000); // Power down control - enable everything
     codecWriteReg(0x07, 0b000000010); // Interface format - 16-bit I2S
     codecWriteReg(0x09, 0b000000001); // Active control - engage!
+}
+
+void codedSetInVolume(int vol)
+{
+    // -23 <= vol <= 8
+    const unsigned involume = 0x17 + vol;
+    codecWriteReg(0x00, 0x100 | (involume & 0x1f)); // Left line in, unmute
+}
+
+void codedSetOutVolume(int voldB)
+{
+    // -73 <= voldB <= 6
+    const unsigned volume = 121 + voldB;
+    codecWriteReg(0x02, 0x100 | (volume & 0x7f)); // Left headphone
 }
 
 void codecInit(void)

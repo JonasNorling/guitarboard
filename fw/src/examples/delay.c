@@ -52,7 +52,7 @@ static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
 
 int main()
 {
-    platformInit();
+    platformInit(NULL);
 
     printf("Starting delay example\n");
 

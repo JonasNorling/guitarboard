@@ -67,7 +67,7 @@ static void adcInit(const KnobConfig* knobConfig)
         return;
     }
 
-    adc_off(ADC1);
+    adc_power_off(ADC1);
     adc_enable_scan_mode(ADC1);
     adc_set_sample_time_on_all_channels(ADC1, ADC_SMPR_SMP_480CYC);
 
@@ -119,7 +119,7 @@ void platformInit(const KnobConfig* knobConfig)
         knobConfig = defaultKnobConfig;
     }
 
-    rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_168MHZ]);
+    rcc_clock_setup_hse_3v3(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
     rcc_periph_clock_enable(RCC_GPIOA);
     rcc_periph_clock_enable(RCC_GPIOB);
     rcc_periph_clock_enable(RCC_GPIOC);

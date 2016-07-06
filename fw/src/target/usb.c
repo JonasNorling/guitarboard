@@ -128,7 +128,7 @@ static const struct usb_interface_descriptor comm_iface[] = {{
         .bNumEndpoints = 1,
         .bInterfaceClass = USB_CLASS_CDC,
         .bInterfaceSubClass = USB_CDC_SUBCLASS_ACM,
-        .bInterfaceProtocol = USB_CDC_PROTOCOL_AT,
+        .bInterfaceProtocol = USB_CDC_PROTOCOL_NONE,
         .iInterface = 0,
 
         .endpoint = comm_endp,

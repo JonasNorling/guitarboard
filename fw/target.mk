@@ -58,7 +58,11 @@ flash: flash-fxbox
 .PHONY: dfu
 dfu: dfu-fxbox
 
-dfu-%: $(BUILDDIR)/%.bin
+$(BUILDDIR)/%.bin-dfu: $(BUILDDIR)/%.bin
+	cp $< $@
+	dfu-suffix -a $@ -v 0483 -p df11
+
+dfu-%: $(BUILDDIR)/%.bin-dfu
 	dfu-util -a 0 -s 0x08000000 -D $<
 
 flash-%: $(BUILDDIR)/%.elf
@@ -71,8 +75,8 @@ flash-%: $(BUILDDIR)/%.elf
 
 %.bin: %.elf
 	@echo flattening $@
-	@$(ARMOBJCOPY) -Obinary $< $@
+	@$(OBJCOPY) -Obinary $< $@
 
 %.asm: %.elf
 	@echo disassembling $@
-	@$(ARMOBJDUMP) -d -S $< > $@
+	@$(OBJDUMP) -d -S $< > $@

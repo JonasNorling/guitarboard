@@ -2,7 +2,8 @@
 
 enum Led {
     LED_RED,
-    LED_GREEN
+    LED_GREEN,
+    LED_BLUE
 };
 
 #define KNOB_COUNT 6

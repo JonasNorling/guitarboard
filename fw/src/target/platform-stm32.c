@@ -131,8 +131,10 @@ void platformInit(const KnobConfig* knobConfig)
 
     // Enable LED pins and turn them on
     gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO3 | GPIO7);
+    gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO6);
     setLed(LED_GREEN, true);
     setLed(LED_RED, true);
+    setLed(LED_BLUE, true);
 
     adcInit(knobConfig);
     ioInit(knobConfig);
@@ -159,6 +161,7 @@ void platformMainloop(void)
 {
     setLed(LED_GREEN, false);
     setLed(LED_RED, false);
+    setLed(LED_BLUE, false);
 
     unsigned lastprint = 0;
 

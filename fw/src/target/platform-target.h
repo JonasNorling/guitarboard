@@ -12,6 +12,9 @@ static inline void setLed(enum Led led, bool state)
     case LED_RED:
         GPIO_BSRR(GPIOC) = state ? GPIO3 : (GPIO3 << 16);
         break;
+    case LED_BLUE:
+        GPIO_BSRR(GPIOB) = state ? GPIO6 : (GPIO6 << 16);
+        break;
     }
 }
 

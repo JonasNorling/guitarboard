@@ -31,7 +31,6 @@ LIBS:valves
 LIBS:wm8731
 LIBS:jack_trs
 LIBS:stm32
-LIBS:m4audio-cache
 EELAYER 25 0
 EELAYER END
 $Descr A4 11693 8268
@@ -363,13 +362,13 @@ Wire Wire Line
 	2100 4100 2100 4050
 Connection ~ 2350 4050
 Wire Wire Line
-	2300 2800 3200 2800
+	2300 2800 3250 2800
 Wire Wire Line
-	2300 5350 3200 5350
+	2300 5350 3250 5350
 Wire Wire Line
-	3900 2900 4500 2900
+	3850 2900 4500 2900
 Wire Wire Line
-	3900 5450 4500 5450
+	3850 5450 4500 5450
 Wire Wire Line
 	4350 1600 4350 1500
 Wire Wire Line
@@ -397,7 +396,7 @@ Wire Wire Line
 Wire Wire Line
 	1400 4050 1750 4050
 Wire Wire Line
-	3200 3000 3100 3000
+	3100 3000 3250 3000
 Wire Wire Line
 	3100 3000 3100 3550
 Wire Wire Line
@@ -406,7 +405,7 @@ Wire Wire Line
 	4000 3550 4000 2900
 Connection ~ 4000 2900
 Wire Wire Line
-	3200 5550 3100 5550
+	3100 5550 3250 5550
 Wire Wire Line
 	3100 5550 3100 5950
 Wire Wire Line

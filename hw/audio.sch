@@ -1058,4 +1058,6 @@ F 3 "" H 8950 2350 60  0000 C CNN
 $EndComp
 Connection ~ 8950 2350
 Connection ~ 8950 3650
+Text Label 7400 5300 0    60   ~ 0
+VMID
 $EndSCHEMATC

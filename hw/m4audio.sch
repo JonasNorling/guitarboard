@@ -31,6 +31,7 @@ LIBS:valves
 LIBS:wm8731
 LIBS:jack_trs
 LIBS:stm32
+LIBS:m4audio-cache
 EELAYER 25 0
 EELAYER END
 $Descr A3 16535 11693
@@ -1039,7 +1040,7 @@ Wire Wire Line
 Wire Wire Line
 	6450 2200 7000 2200
 Wire Wire Line
-	6450 2400 7000 2400
+	6450 2400 7200 2400
 Wire Wire Line
 	7000 2400 7000 2450
 Wire Wire Line
@@ -1314,4 +1315,16 @@ F 3 "" H 13150 8400 60  0000 C CNN
 $EndComp
 Wire Wire Line
 	12750 8400 13150 8400
+$Comp
+L TST TP19
+U 1 1 578010F4
+P 7200 2400
+F 0 "TP19" H 7200 2600 50  0000 C BNN
+F 1 "TST" H 7200 2650 50  0001 C CNN
+F 2 "Jonas_Connectors:TP_0.7mm" H 7200 2400 60  0001 C CNN
+F 3 "" H 7200 2400 60  0000 C CNN
+	1    7200 2400
+	1    0    0    -1  
+$EndComp
+Connection ~ 7000 2400
 $EndSCHEMATC

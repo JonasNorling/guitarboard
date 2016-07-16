@@ -9,6 +9,7 @@
 
 #include "codec.h"
 #include "dsp/biquad.h"
+#include "dsp/delay.h"
 #include "dsp/vibrato.h"
 #include "dsp/waveshaper.h"
 #include "platform.h"
@@ -16,6 +17,7 @@
 
 static VibratoState vibratoState;
 static FloatBiquadState bqstate;
+static DelayState delayState;
 
 static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
 {
@@ -50,6 +52,27 @@ static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
     bqProcess(outBuf, &b3, &coeffs, &bqstate);
     outBuf = (switches & 0x02) ? &b3 : outBuf;
 
+    const DelayParams dParams = {
+            .input = knobs[1],
+            .confusion = 0.3,
+            .feedback = knobs[2],
+            .octaveMix = 0.5f * knobs[4],
+            .length = knobs[3]
+    };
+    FloatAudioBuffer b4 = {};
+    processDelay(outBuf, &b4, &delayState, &dParams);
+    outBuf = (switches & 0x04) ? &b4 : outBuf;
+
+    if (switches &0x08) {
+        // Output the difference between channels
+        for (unsigned s = 0; s < CODEC_SAMPLES_PER_FRAME; s++) {
+            float a = outBuf->s[s][0];
+            float b = outBuf->s[s][1];
+            outBuf->s[s][0] = a - b;
+            outBuf->s[s][1] = b - a;
+        }
+    }
+
     setLed(LED_RED, willClip(outBuf));
 
     const float gain = knobs[5];
@@ -81,6 +104,7 @@ int main()
     codecRegisterProcessFunction(process);
 
     initVibrato(&vibratoState);
+    initDelay(&delayState);
 
     platformMainloop();
 

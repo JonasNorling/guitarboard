@@ -213,28 +213,28 @@ $EndComp
 $Comp
 L TST TP3
 U 1 1 55C1F291
-P 4200 2850
-F 0 "TP3" H 4200 3050 50  0000 C BNN
-F 1 "TST" H 4200 3100 50  0001 C CNN
-F 2 "Jonas_Connectors:TP_0.7mm" H 4200 2850 60  0001 C CNN
-F 3 "" H 4200 2850 60  0000 C CNN
-	1    4200 2850
+P 4300 2800
+F 0 "TP3" H 4300 3000 50  0000 C BNN
+F 1 "TST" H 4300 3050 50  0001 C CNN
+F 2 "Jonas_Connectors:TP_0.7mm" H 4300 2800 60  0001 C CNN
+F 3 "" H 4300 2800 60  0000 C CNN
+	1    4300 2800
 	1    0    0    -1  
 $EndComp
 $Comp
 L TST TP4
 U 1 1 55C1F663
-P 4200 5500
-F 0 "TP4" H 4200 5700 50  0000 C BNN
-F 1 "TST" H 4200 5750 50  0001 C CNN
-F 2 "Jonas_Connectors:TP_0.7mm" H 4200 5500 60  0001 C CNN
-F 3 "" H 4200 5500 60  0000 C CNN
-	1    4200 5500
+P 4300 5550
+F 0 "TP4" H 4300 5750 50  0000 C BNN
+F 1 "TST" H 4300 5800 50  0001 C CNN
+F 2 "Jonas_Connectors:TP_0.7mm" H 4300 5550 60  0001 C CNN
+F 3 "" H 4300 5550 60  0000 C CNN
+	1    4300 5550
 	-1   0    0    1   
 $EndComp
-Text Label 4500 2900 2    60   ~ 0
+Text Label 4300 2800 0    60   ~ 0
 ADCL
-Text Label 4500 5450 2    60   ~ 0
+Text Label 4300 5550 0    60   ~ 0
 ADCR
 $Comp
 L JACK_TRS J2
@@ -348,7 +348,7 @@ Wire Wire Line
 Wire Wire Line
 	4100 1500 4100 1600
 Wire Wire Line
-	1750 4050 1750 2800
+	1750 2300 1750 4050
 Wire Wire Line
 	1750 2800 2000 2800
 Wire Wire Line
@@ -367,9 +367,7 @@ Wire Wire Line
 Wire Wire Line
 	2300 5350 3250 5350
 Wire Wire Line
-	3850 2900 4500 2900
-Wire Wire Line
-	3850 5450 4500 5450
+	3850 5450 4550 5450
 Wire Wire Line
 	4350 1600 4350 1500
 Wire Wire Line
@@ -393,9 +391,9 @@ Wire Wire Line
 Wire Wire Line
 	1400 4250 1750 4250
 Wire Wire Line
-	1750 4250 1750 5350
+	1750 4250 1750 6100
 Wire Wire Line
-	1400 4050 1750 4050
+	1750 4050 1400 4050
 Wire Wire Line
 	3100 3000 3250 3000
 Wire Wire Line
@@ -453,9 +451,9 @@ Wire Wire Line
 Wire Wire Line
 	9900 2800 10200 2800
 Wire Wire Line
-	9000 2350 8650 2350
+	8650 2350 9000 2350
 Wire Wire Line
-	9000 3650 8650 3650
+	8650 3650 9000 3650
 Wire Wire Line
 	7400 4500 7900 4500
 Wire Wire Line
@@ -626,12 +624,6 @@ Text Label 9600 4750 0    60   ~ 0
 LINEL
 Text Label 9600 5100 0    60   ~ 0
 LINER
-Wire Wire Line
-	4200 2850 4200 2900
-Connection ~ 4200 2900
-Wire Wire Line
-	4200 5500 4200 5450
-Connection ~ 4200 5450
 $Comp
 L GND #PWR038
 U 1 1 55C743BB
@@ -1061,4 +1053,46 @@ Connection ~ 8950 2350
 Connection ~ 8950 3650
 Text Label 7400 5300 0    60   ~ 0
 VMID
+$Comp
+L CONN_01X03 TIE4
+U 1 1 57950F20
+P 4750 2800
+F 0 "TIE4" H 4750 3000 50  0000 C CNN
+F 1 "CONN_01X03" V 4850 2800 50  0001 C CNN
+F 2 "Jonas_Connectors:net_tie_3_0805" H 4750 2800 50  0001 C CNN
+F 3 "" H 4750 2800 50  0000 C CNN
+	1    4750 2800
+	1    0    0    1   
+$EndComp
+$Comp
+L CONN_01X03 TIE5
+U 1 1 5795133E
+P 4750 5550
+F 0 "TIE5" H 4750 5750 50  0000 C CNN
+F 1 "CONN_01X03" V 4850 5550 50  0001 C CNN
+F 2 "Jonas_Connectors:net_tie_3_0805" H 4750 5550 50  0001 C CNN
+F 3 "" H 4750 5550 50  0000 C CNN
+	1    4750 5550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3850 2900 4550 2900
+Wire Wire Line
+	4550 2800 4300 2800
+Wire Wire Line
+	4550 2700 4550 2300
+Wire Wire Line
+	4550 2300 1750 2300
+Connection ~ 1750 2800
+Wire Wire Line
+	4550 5550 4300 5550
+Wire Wire Line
+	4550 5650 4550 6100
+Wire Wire Line
+	4550 6100 1750 6100
+Connection ~ 1750 5350
+Text Label 3850 2900 0    60   ~ 0
+OPOUTL
+Text Label 3850 5450 0    60   ~ 0
+OPOUTR
 $EndSCHEMATC

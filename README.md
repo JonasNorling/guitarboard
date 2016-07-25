@@ -13,8 +13,8 @@ The board is based on a STM32F405RG microcontroller (192KiB RAM,
 Cortex-M4 with DSP and floating point instructions) and a WM8731 audio
 codec.
 
-![Board front view](doc/3d-revb-front.png "This is a rendering of the front of the board, rev.B")
-![Board back view](doc/3d-revb-back.png "This is a rendering of the back of the board, rev.B")
+![Board front view](doc/3d-revc-front.png "This is a rendering of the front of the board, rev.C")
+![Board back view](doc/3d-revc-back.png "This is a rendering of the back of the board, rev.C")
 
 
 About the hardware
@@ -38,18 +38,18 @@ the wiring compartment in an electric guitar. To avoid ground loops it
 should run from battery power or an isolated power supply (not mains
 earth referenced).
 
-The acceptable input voltage is around 5 to 9 V and the current draw
+The acceptable input voltage is around 4 to 9 V and the current draw
 lands at about 80mA (168MHz, 25% CPU awake) — that should give you
 about 24 hours runtime on 4 AA cells.
 
 There is also a micro-USB connector on the board that can be used to
-provide power. The USB and power headers are diode-ORed so that both
-can be connected simultaneously without current flowing in weird
-directions. The USB power from a computer can be quite noisy, so it
-may be a bad idea to use it from an audio quality point of view. Also,
-connecting the audio output to the same computer or another grounded
-system will create funny ground effects that add additional noise
-components.
+provide power. Note that the USB bus power is connected to the power
+input terminal, so avoid connecting another power supply (such as a
+battery) at the same time as USB. The USB power from a computer can be
+quite noisy, so it may be a bad idea to use it from an audio quality
+point of view. Also, connecting the audio output to the same computer
+or another grounded system will create funny ground effects that add
+additional noise components.
 
 ### I/O options
 

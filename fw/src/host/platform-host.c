@@ -9,7 +9,7 @@ void platformInit(const KnobConfig* knobConfig)
 
 void platformRegisterIdleCallback(void(*cb)(void))
 {
-    (void)cb;
+    jackClientSetIdleCallback(cb);
 }
 
 void platformMainloop(void)

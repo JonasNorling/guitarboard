@@ -150,6 +150,7 @@ void codecInit(void)
     // Enable interrupts on finished DMA transfers
     dma_enable_transfer_complete_interrupt(DMA1, DAC_DMA_STREAM);
     nvic_enable_irq(NVIC_DMA1_STREAM4_IRQ);
+    nvic_set_priority(NVIC_DMA1_STREAM4_IRQ, 0xff); // 0 is most urgent
 
     // Start transmitting data
     spi_enable_rx_dma(I2S2_EXT_BASE);

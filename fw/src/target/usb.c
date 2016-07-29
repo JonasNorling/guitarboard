@@ -34,6 +34,7 @@
 
 static usbd_device *usbd_dev;
 static bool ready;
+static bool timingOut;
 static char serialNumber[26];
 
 #define EP_BUFFER_SIZE 64
@@ -255,7 +256,10 @@ static void resume_callback(void)
 
 void usbInit(void)
 {
+    rcc_periph_clock_disable(RCC_OTGFS);
     rcc_periph_clock_enable(RCC_OTGFS);
+    rcc_periph_reset_pulse(RST_OTGFS);
+
     gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11 | GPIO12);
     gpio_set_af(GPIOA, GPIO_AF10, GPIO11 | GPIO12);
 
@@ -271,7 +275,7 @@ void usbInit(void)
     usbd_register_resume_callback(usbd_dev, resume_callback);
 
     nvic_enable_irq(NVIC_OTG_FS_IRQ);
-    nvic_set_priority(NVIC_OTG_FS_IRQ, 0xff);
+    nvic_set_priority(NVIC_OTG_FS_IRQ, 0x00); // 0 is most urgent
 
     // Turn off VBUS sensing logic, forcing USB to peripheral mode.
     // The VBUS pin (PA9) is not connected on this board.
@@ -286,10 +290,6 @@ void otg_fs_isr(void)
 
 ssize_t _write(int fd __attribute__((unused)), const void* buf, size_t count)
 {
-    // NOTE: Logging over USB is disabled right now. I can't get it to work
-    // reliably.
-    return count;
-
     if (!ready) {
         return count;
     }
@@ -302,15 +302,17 @@ ssize_t _write(int fd __attribute__((unused)), const void* buf, size_t count)
     // the EP hasn't finished yet -- so we need to loop until it's not busy.
     // This will also happen when nobody is listening on the host side (i.e.
     // /dev/ttyACM0 is not being read) -- so we need to give up after a while.
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < (timingOut ? 1 : 10000); i++) {
         nvic_disable_irq(NVIC_OTG_FS_IRQ);
         int res = usbd_ep_write_packet(usbd_dev, 0x82, buf, count);
         usbd_poll(usbd_dev);
         nvic_enable_irq(NVIC_OTG_FS_IRQ);
         if (res != 0) {
+            timingOut = false;
             return res;
         }
     }
 
+    timingOut = true;
     return count;
 }

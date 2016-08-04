@@ -4,6 +4,7 @@
 #include <time.h>
 #include "platform.h"
 #include "codec.h"
+#include "window.h"
 #include <tools/kiss_fftr.h>
 
 #ifndef HOST
@@ -103,7 +104,7 @@ static void doFft()
     // Apply a Hann window. The function includes a correction factor
     // to remove the attenuation in the window.
     for (unsigned n = 0; n < N; n++) {
-        in[n] *= 1-cosf((2*PI*n)/(N-1));
+        in[n] *= hannWindow[n];
     }
 
     kiss_fftr(fftCfg, in, transform);

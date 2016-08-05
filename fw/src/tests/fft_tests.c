@@ -15,14 +15,13 @@
 
 #define N 2048
 static kiss_fftr_cfg fftCfg;
-static kiss_fft_scalar fftBuffer[2][N];
-static kiss_fft_cpx transform[N];
+static kiss_fft_scalar fftBuffer[2][2][N];
+static kiss_fft_cpx transform[2][N];
 static unsigned currentWriteBuffer;
 static unsigned fftInPtr;
 static volatile bool newFftBufferAvailable;
 
 float signalW[2] = { 440.0 / CODEC_SAMPLERATE, 0 };
-unsigned measureChannel;
 
 struct ThdResult {
     float fundamental; //< Power of fundamental (not in dB)
@@ -51,7 +50,8 @@ static float dB(float n)
 static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
 {
     for (unsigned s = 0; s < CODEC_SAMPLES_PER_FRAME; s++) {
-        fftBuffer[currentWriteBuffer][fftInPtr] = in->s[s][measureChannel] / 65536.0f;
+        fftBuffer[currentWriteBuffer][0][fftInPtr] = in->s[s][0] / 65536.0f;
+        fftBuffer[currentWriteBuffer][1][fftInPtr] = in->s[s][1] / 65536.0f;
         fftInPtr++;
     }
 
@@ -78,7 +78,7 @@ static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
     }
 }
 
-static kiss_fft_scalar* waitForData()
+static void waitForData()
 {
     while (!newFftBufferAvailable) {
 #ifdef HOST
@@ -89,7 +89,6 @@ static kiss_fft_scalar* waitForData()
 #endif
     }
     newFftBufferAvailable = false;
-    return fftBuffer[(currentWriteBuffer + 1) % 2];
 }
 
 /**
@@ -98,29 +97,37 @@ static kiss_fft_scalar* waitForData()
  */
 static void doFft()
 {
-    kiss_fft_scalar* in = waitForData();
-    setLed(LED_GREEN, true);
+    waitForData();
+    kiss_fft_scalar* in[2] = {
+            fftBuffer[(currentWriteBuffer + 1) % 2][0],
+            fftBuffer[(currentWriteBuffer + 1) % 2][1]
+    };
 
+    setLed(LED_GREEN, true);
     // Apply a Hann window. The function includes a correction factor
     // to remove the attenuation in the window.
     for (unsigned n = 0; n < N; n++) {
-        in[n] *= hannWindow[n];
+        (in[0])[n] *= hannWindow[n];
+    }
+    for (unsigned n = 0; n < N; n++) {
+        (in[1])[n] *= hannWindow[n];
     }
 
-    kiss_fftr(fftCfg, in, transform);
+    kiss_fftr(fftCfg, in[0], transform[0]);
+    kiss_fftr(fftCfg, in[1], transform[1]);
     setLed(LED_GREEN, false);
 }
 
-static void calculateThd(struct ThdResult* result)
+static void calculateThd(struct ThdResult* result, unsigned channel)
 {
-    const float fundBin = signalW[measureChannel] * N;
+    const float fundBin = signalW[channel] * N;
     const int peakwidth = N/256;
     double fundamental = 0;
     double harms = 0;
     double other = 0;
 
     for (int n = 1; n < N/2; n++) {
-        const float p = normPower(transform[n]);
+        const float p = normPower(transform[channel][n]);
         if (n >= fundBin - peakwidth && n <= fundBin + peakwidth) {
             fundamental += p;
             goto next;
@@ -139,7 +146,7 @@ static void calculateThd(struct ThdResult* result)
         next: ;
     }
 
-    result->dc = normPower(transform[0]);
+    result->dc = normPower(transform[channel][0]);
     result->fundamental = fundamental;
     result->harmonics = harms;
     result->thd = sqrtf(harms / fundamental);
@@ -148,7 +155,6 @@ static void calculateThd(struct ThdResult* result)
 
 static void runThdTest(float f, unsigned channel)
 {
-    measureChannel = channel;
     memset(signalW, 0, sizeof(signalW));
     signalW[channel] = f / CODEC_SAMPLERATE;
 
@@ -161,7 +167,7 @@ static void runThdTest(float f, unsigned channel)
     for (unsigned i = 0; i < iterations; i++) {
         struct ThdResult onethd;
         doFft();
-        calculateThd(&onethd);
+        calculateThd(&onethd, channel);
         thd.dc += onethd.dc;
         thd.fundamental += onethd.fundamental;
         thd.harmonics += onethd.harmonics;
@@ -196,12 +202,64 @@ static void runThdTest(float f, unsigned channel)
     */
 }
 
+static void runCrosstalkTest(float f, unsigned channel)
+{
+    memset(signalW, 0, sizeof(signalW));
+    signalW[channel] = f / CODEC_SAMPLERATE;
+
+    const float fundBin = signalW[channel] * N;
+    const int peakwidth = N/256;
+
+    for (unsigned i = 0; i < 10; i++) {
+        doFft();
+    }
+
+    const unsigned iterations = 20;
+    double signal[2] = { 0, 0 };
+    for (unsigned i = 0; i < iterations; i++) {
+        doFft();
+        for (int n = fundBin - peakwidth; n <= fundBin + peakwidth; n++) {
+            signal[0] += normPower(transform[0][n]);
+            signal[1] += normPower(transform[1][n]);
+        };
+    }
+
+    signal[0] /= iterations;
+    signal[1] /= iterations;
+
+    printf("%c CROSSTALK @ %4d Hz: L %4d dB, R %4d dB, delta %4d dB\n",
+            channel == 0 ? 'L' : 'R',
+            (int)f,
+            (int)dB(signal[0]), (int)dB(signal[1]),
+            (int)dB(signal[(channel+1)%2] / signal[channel]));
+}
+
 static void runTests()
 {
     static const int volumes[] = { -40, -20, -5, 0, 5 };
     static const unsigned fs[] = { 440, 880, 1760, 3520, 7040 };
 
     while (true) {
+        printf("Volume %d dB\n", 0);
+        codedSetOutVolume(0);
+        runCrosstalkTest(600, 0);
+        runCrosstalkTest(600, 1);
+        runCrosstalkTest(8000, 0);
+        runCrosstalkTest(8000, 1);
+        runCrosstalkTest(20000, 0);
+        runCrosstalkTest(20000, 1);
+        printf("\n");
+
+        printf("Volume %d dB\n", -30);
+        codedSetOutVolume(-30);
+        runCrosstalkTest(600, 0);
+        runCrosstalkTest(600, 1);
+        runCrosstalkTest(8000, 0);
+        runCrosstalkTest(8000, 1);
+        runCrosstalkTest(20000, 0);
+        runCrosstalkTest(20000, 1);
+        printf("\n");
+
         // Run THD tests
         for (unsigned v = 0; v < sizeof(volumes)/sizeof(*volumes); v++) {
             int vol = volumes[v];

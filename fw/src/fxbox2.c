@@ -59,7 +59,7 @@ static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
             .octaveMix = 0.5f * knobs[4],
             .length = knobs[3]
     };
-    FloatAudioBuffer b4 = {};
+    FloatAudioBuffer b4 = { .m = { } };
     processDelay(outBuf, &b4, &delayState, &dParams);
     outBuf = (switches & 0x04) ? &b4 : outBuf;
 

@@ -43,7 +43,7 @@ static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
     }
 
     setLed(LED_GREEN, false);
-    if (abs(lpctx[0]) > 100) {
+    if (abs((int)lpctx[0]) > 100) {
         setLed(LED_GREEN, true);
     }
 

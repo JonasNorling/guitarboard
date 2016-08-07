@@ -33,8 +33,3 @@ make
 make flash # Flash the default program onto the target using OpenOCD, or
 make dfu # Flash the default program onto the target over USB (short BOOT0 to VCC)
 ```
-
-### Notes
-
-On Mac OS X, libopencm3 fails to generate the linker script properly. The gsub
-lines in scripts/genlink.awk need some more escaping to work with the local awk.

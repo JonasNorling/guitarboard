@@ -31,11 +31,19 @@
 #include <libopencm3/usb/cdc.h>
 #include <libopencm3/cm3/scb.h>
 #include "platform.h"
+#include "usb_audio.h"
 
 static usbd_device *usbd_dev;
 static bool ready;
 static bool timingOut;
 static char serialNumber[26];
+
+/* Buffer to be used for control requests. */
+static uint8_t usbd_control_buffer[256];
+
+#define EP_ID_ACM_DATA_TO_ME 0x01
+#define EP_ID_ACM_COMM 0x81
+#define EP_ID_ACM_DATA_FROM_ME 0x82
 
 #define EP_BUFFER_SIZE 64
 
@@ -43,7 +51,7 @@ static const struct usb_device_descriptor dev = {
         .bLength = USB_DT_DEVICE_SIZE,
         .bDescriptorType = USB_DT_DEVICE,
         .bcdUSB = 0x0200,
-        .bDeviceClass = USB_CLASS_CDC,
+        .bDeviceClass = 0, // Defined in interface
         .bDeviceSubClass = 0,
         .bDeviceProtocol = 0,
         .bMaxPacketSize0 = 64,
@@ -64,7 +72,7 @@ static const struct usb_device_descriptor dev = {
 static const struct usb_endpoint_descriptor comm_endp[] = {{
         .bLength = USB_DT_ENDPOINT_SIZE,
         .bDescriptorType = USB_DT_ENDPOINT,
-        .bEndpointAddress = 0x83,
+        .bEndpointAddress = EP_ID_ACM_COMM,
         .bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT,
         .wMaxPacketSize = 16,
         .bInterval = 255,
@@ -73,16 +81,16 @@ static const struct usb_endpoint_descriptor comm_endp[] = {{
 static const struct usb_endpoint_descriptor data_endp[] = {{
         .bLength = USB_DT_ENDPOINT_SIZE,
         .bDescriptorType = USB_DT_ENDPOINT,
-        .bEndpointAddress = 0x01,
+        .bEndpointAddress = EP_ID_ACM_DATA_TO_ME,
         .bmAttributes = USB_ENDPOINT_ATTR_BULK,
-        .wMaxPacketSize = 64,
+        .wMaxPacketSize = EP_BUFFER_SIZE,
         .bInterval = 1,
 }, {
         .bLength = USB_DT_ENDPOINT_SIZE,
         .bDescriptorType = USB_DT_ENDPOINT,
-        .bEndpointAddress = 0x82,
+        .bEndpointAddress = EP_ID_ACM_DATA_FROM_ME,
         .bmAttributes = USB_ENDPOINT_ATTR_BULK,
-        .wMaxPacketSize = 64,
+        .wMaxPacketSize = EP_BUFFER_SIZE,
         .bInterval = 1,
 } };
 
@@ -121,7 +129,7 @@ static const struct {
         }
 };
 
-static const struct usb_interface_descriptor comm_iface[] = {{
+static const struct usb_interface_descriptor acm_comm_iface[] = {{
         .bLength = USB_DT_INTERFACE_SIZE,
         .bDescriptorType = USB_DT_INTERFACE,
         .bInterfaceNumber = 0,
@@ -138,7 +146,7 @@ static const struct usb_interface_descriptor comm_iface[] = {{
         .extralen = sizeof(cdcacm_functional_descriptors)
 } };
 
-static const struct usb_interface_descriptor data_iface[] = {{
+static const struct usb_interface_descriptor acm_data_iface[] = {{
         .bLength = USB_DT_INTERFACE_SIZE,
         .bDescriptorType = USB_DT_INTERFACE,
         .bInterfaceNumber = 1,
@@ -152,19 +160,30 @@ static const struct usb_interface_descriptor data_iface[] = {{
         .endpoint = data_endp,
 } };
 
-static const struct usb_interface ifaces[] = {{
-        .num_altsetting = 1,
-        .altsetting = comm_iface,
-}, {
-        .num_altsetting = 1,
-        .altsetting = data_iface,
-} };
+static const struct usb_interface ifaces[] = {
+        {
+                .num_altsetting = 1,
+                .altsetting = acm_comm_iface,
+        },
+        {
+                .num_altsetting = 1,
+                .altsetting = acm_data_iface,
+        },
+        {
+                .num_altsetting = 1,
+                .altsetting = audio_control_iface,
+        },
+        {
+                .num_altsetting = 1,
+                .altsetting = audio_streaming_iface,
+        },
+};
 
 static const struct usb_config_descriptor config = {
         .bLength = USB_DT_CONFIGURATION_SIZE,
         .bDescriptorType = USB_DT_CONFIGURATION,
         .wTotalLength = 0,
-        .bNumInterfaces = 2,
+        .bNumInterfaces = 4,
         .bConfigurationValue = 1,
         .iConfiguration = 0,
         .bmAttributes = 0x80,
@@ -178,9 +197,6 @@ static const char * usb_strings[] = {
         "Cortex Guitar Board",
         serialNumber,
 };
-
-/* Buffer to be used for control requests. */
-uint8_t usbd_control_buffer[128];
 
 static int cdcacm_control_request(usbd_device *usbd_dev,
         struct usb_setup_data *req, uint8_t **buf, uint16_t *len,
@@ -213,11 +229,11 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 {
     (void)ep;
 
-    char buf[64];
-    int len = usbd_ep_read_packet(usbd_dev, 0x01, buf, 64);
+    char buf[EP_BUFFER_SIZE];
+    int len = usbd_ep_read_packet(usbd_dev, EP_ID_ACM_DATA_TO_ME, buf, sizeof(buf));
 
     if (len) {
-        while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len) == 0);
+        while (usbd_ep_write_packet(usbd_dev, EP_ID_ACM_DATA_FROM_ME, buf, len) == 0);
     }
 }
 
@@ -225,10 +241,12 @@ static void cdcacm_set_config(usbd_device *usbd_dev, uint16_t wValue)
 {
     (void)wValue;
 
-    usbd_ep_setup(usbd_dev, 0x01, USB_ENDPOINT_ATTR_BULK, EP_BUFFER_SIZE,
+    usbd_ep_setup(usbd_dev, EP_ID_ACM_DATA_TO_ME, USB_ENDPOINT_ATTR_BULK, EP_BUFFER_SIZE,
             cdcacm_data_rx_cb);
-    usbd_ep_setup(usbd_dev, 0x82, USB_ENDPOINT_ATTR_BULK, EP_BUFFER_SIZE, NULL);
-    usbd_ep_setup(usbd_dev, 0x83, USB_ENDPOINT_ATTR_INTERRUPT, 16, NULL);
+    usbd_ep_setup(usbd_dev, EP_ID_ACM_DATA_FROM_ME, USB_ENDPOINT_ATTR_BULK, EP_BUFFER_SIZE, NULL);
+    usbd_ep_setup(usbd_dev, EP_ID_ACM_COMM, USB_ENDPOINT_ATTR_INTERRUPT, 16, NULL);
+
+    usbAudioSetupEps(usbd_dev);
 
     usbd_register_control_callback(
             usbd_dev,
@@ -304,7 +322,7 @@ ssize_t _write(int fd __attribute__((unused)), const void* buf, size_t count)
     // /dev/ttyACM0 is not being read) -- so we need to give up after a while.
     for (int i = 0; i < (timingOut ? 1 : 10000); i++) {
         nvic_disable_irq(NVIC_OTG_FS_IRQ);
-        int res = usbd_ep_write_packet(usbd_dev, 0x82, buf, count);
+        int res = usbd_ep_write_packet(usbd_dev, EP_ID_ACM_DATA_FROM_ME, buf, count);
         usbd_poll(usbd_dev);
         nvic_enable_irq(NVIC_OTG_FS_IRQ);
         if (res != 0) {

@@ -6,6 +6,7 @@
 #include <libopencm3/stm32/spi.h>
 #include <libopencm3/cm3/nvic.h>
 #include "platform.h"
+#include "usb_audio.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -182,6 +183,8 @@ void dma1_stream3_isr(void)
     if (appProcess) {
         appProcess((const AudioBuffer*)inBuffer, (AudioBuffer*)outBuffer);
     }
+
+    usbAudioFeed((const AudioBuffer*)inBuffer, (AudioBuffer*)outBuffer);
 
     samplecounter += CODEC_SAMPLES_PER_FRAME;
     CodecIntSample framePeakOut = INT16_MIN;

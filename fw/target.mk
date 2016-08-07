@@ -25,6 +25,7 @@ COMMONFLAGS += -I$(LIBOPENCM3_DIR)/include/
 # Sources to build for target only
 SRCS += src/target/platform-stm32.c
 SRCS += src/target/usb.c
+SRCS += src/target/usb_audio.c
 SRCS += src/target/wm8731.c
 
 COMMON_OBJS := $(SRCS:src/%.c=$(BUILDDIR)/%.o)

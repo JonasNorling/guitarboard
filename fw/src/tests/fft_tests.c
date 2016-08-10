@@ -237,12 +237,52 @@ static void runCrosstalkTest(float f, unsigned channel)
             (int)dB(signal[(channel+1)%2] / signal[channel]));
 }
 
+static void runNoisefloorTest()
+{
+    memset(signalW, 0, sizeof(signalW));
+
+    for (unsigned i = 0; i < 10; i++) {
+        doFft();
+    }
+
+    double bins[2][10] = { };
+    unsigned fHz = 100;
+    size_t bin = 0;
+    const unsigned iterations = 20;
+    for (unsigned i = 0; i < iterations; i++) {
+        doFft();
+        for (int n = 0; n < N/2; n++) {
+            if (n * ((float)CODEC_SAMPLERATE / N) >= fHz) {
+                fHz *= 2;
+                bin++;
+            }
+            bins[0][bin] += normPower(transform[0][n]);
+            bins[1][bin] += normPower(transform[1][n]);
+        }
+    }
+
+    printf("  octave up to 100  200  400  800  1k6  3k2  6k4 12k8  24k Hz\n");
+    for (unsigned c = 0; c < 2; c++) {
+        printf("%c Noisefloor: %4d %4d %4d %4d %4d %4d %4d %4d %4d dB\n",
+                c == 0 ? 'L' : 'R',
+                        (int)dB(bins[c][0]), (int)dB(bins[c][1]),
+                        (int)dB(bins[c][2]), (int)dB(bins[c][3]),
+                        (int)dB(bins[c][4]), (int)dB(bins[c][5]),
+                        (int)dB(bins[c][6]), (int)dB(bins[c][7]),
+                        (int)dB(bins[c][8]));
+    }
+}
+
 static void runTests()
 {
     static const int volumes[] = { -40, -20, -5, 0, 5 };
     static const unsigned fs[] = { 440, 880, 1760, 3520, 7040 };
 
     while (true) {
+        codedSetOutVolume(-70);
+        runNoisefloorTest();
+        printf("\n");
+
         printf("Volume %d dB\n", 0);
         codedSetOutVolume(0);
         runCrosstalkTest(600, 0);

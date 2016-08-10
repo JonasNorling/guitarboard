@@ -153,38 +153,41 @@ static void calculateThd(struct ThdResult* result, unsigned channel)
     result->other = other;
 }
 
-static void runThdTest(float f, unsigned channel)
+static void runThdTest(float f)
 {
-    memset(signalW, 0, sizeof(signalW));
-    signalW[channel] = f / CODEC_SAMPLERATE;
+    signalW[0] = f / CODEC_SAMPLERATE;
+    signalW[1] = f / CODEC_SAMPLERATE;
 
     for (unsigned i = 0; i < 10; i++) {
         doFft();
     }
 
     const unsigned iterations = 20;
-    struct ThdResult thd = { .fundamental = 0 };
+    struct ThdResult thd[2] = { };
     for (unsigned i = 0; i < iterations; i++) {
-        struct ThdResult onethd;
         doFft();
-        calculateThd(&onethd, channel);
-        thd.dc += onethd.dc;
-        thd.fundamental += onethd.fundamental;
-        thd.harmonics += onethd.harmonics;
-        thd.other += onethd.other;
-        thd.thd += onethd.thd;
+        for (unsigned c = 0; c < 2; c++) {
+            struct ThdResult onethd;
+            calculateThd(&onethd, c);
+            thd[c].dc += onethd.dc;
+            thd[c].fundamental += onethd.fundamental;
+            thd[c].harmonics += onethd.harmonics;
+            thd[c].other += onethd.other;
+            thd[c].thd += onethd.thd;
+        }
     }
-
-    thd.dc /= iterations;
-    thd.fundamental /= iterations;
-    thd.harmonics /= iterations;
-    thd.other /= iterations;
-    thd.thd /= iterations;
-    printf("%c THD @ %4d Hz: DC:%4d, Other=%d dB, Fundamental=%d dB, harmonics=%d dB, THD=%dppm\n",
-            channel == 0 ? 'L' : 'R',
-            (int)f, (int)dB(thd.dc), (int)dB(thd.other),
-            (int)dB(thd.fundamental), (int)dB(thd.harmonics),
-            (int)(thd.thd * 1e6));
+    for (unsigned c = 0; c < 2; c++) {
+        thd[c].dc /= iterations;
+        thd[c].fundamental /= iterations;
+        thd[c].harmonics /= iterations;
+        thd[c].other /= iterations;
+        thd[c].thd /= iterations;
+        printf("%c THD @ %4d Hz: DC:%4d, Other=%d dB, Fundamental=%d dB, harmonics=%d dB, THD=%d dB\n",
+                c == 0 ? 'L' : 'R',
+                        (int)f, (int)dB(thd[c].dc), (int)dB(thd[c].other),
+                        (int)dB(thd[c].fundamental), (int)dB(thd[c].harmonics),
+                        (int)dB(thd[c].thd));
+    }
 
     /*
     for (int n = 1; n < N/4; n += 4) {
@@ -268,8 +271,7 @@ static void runTests()
 
             for (unsigned fi = 0; fi < sizeof(fs)/sizeof(*fs); fi++) {
                 unsigned f = fs[fi];
-                runThdTest(f, 0);
-                runThdTest(f, 1);
+                runThdTest(f);
             }
             printf("\n");
         }

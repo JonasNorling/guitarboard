@@ -7,7 +7,8 @@ applications such as Guitar effects.
 This repository contains the hardware design as KiCAD files and sample
 software that implements some naive guitar effects. For info about the
 software and how to load it, look at [fw/README.md](fw/README.md). For
-more on the hardware, keep on reading below.
+more on the hardware, keep on reading below and also look in
+[hw/README.md](hw/README.md).
 
 The board is based on a STM32F405RG microcontroller (192KiB RAM,
 Cortex-M4 with DSP and floating point instructions) and a WM8731 audio
@@ -31,6 +32,14 @@ signal back into the analog domain. The codec chip includes an
 amplifier so the board is capable of driving low-impedance loads such
 as headphones.
 
+Note that this isn't quite a HiFi system, though it should be good
+enough for casual use. For example, there is some theoretical
+crosstalk between the L/R channels on the input side (although you
+won't hear it), the codec isn't particularly fancy and expensive, and
+the USB power supply isn't very well filtered. If the audio input is
+clipping because whatever you're feeding in is too high level (more
+than, say, 1V RMS), attenuate it a bit with a resistor divider first.
+
 ### Powering the board
 
 The board is designed to be deployed in an effects pedal or box or in
@@ -49,12 +58,15 @@ battery) at the same time as USB. The USB power from a computer can be
 quite noisy, so it may be a bad idea to use it from an audio quality
 point of view. Also, connecting the audio output to the same computer
 or another grounded system will create funny ground effects that add
-additional noise components.
+additional noise components. Note that there is no inrush current
+limit on the USB power line, which is in conflict with requirements in
+the USB standard. This might make some USB hosts turn off the port,
+although most seem to be just fine with it.
 
 ### I/O options
 
 * Micro-USB connector
-* 2 LEDs (green and amber), with extra pads for 3mm throughhole LEDs
+* 2 LEDs (green and amber, 3mm throughhole) or 2.54mm header
 * 2.54mm header with power, 6 analog capable GPIO pins, UART RX/TX and
   1 digital pin
 * 3.5mm stereo audio output jack (headphone amplified)
@@ -64,7 +76,7 @@ additional noise components.
 
 #### MIDI
 
-There is no MIDI ports on board, but the exposed UART pins could be
+There are no MIDI ports on board, but the exposed UART pins could be
 used to hook up MIDI connectors with a few external parts.
 
 Other resources

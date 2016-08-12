@@ -1,4 +1,4 @@
-update=Mon 05 Oct 2015 06:10:22 PM CEST
+update=2016 August 12, Friday 09:52:07
 version=1
 last_client=kicad
 [pcbnew]
@@ -61,3 +61,13 @@ LibName29=valves
 LibName30=wm8731
 LibName31=jack_trs
 LibName32=stm32
+[schematic_editor]
+version=1
+PageLayoutDescrFile=
+PlotDirectoryName=pdf
+SubpartIdSeparator=0
+SubpartFirstId=65
+NetFmtName=
+SpiceForceRefPrefix=0
+SpiceUseNetNumbers=0
+LabSize=60

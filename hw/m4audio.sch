@@ -31,15 +31,14 @@ LIBS:valves
 LIBS:wm8731
 LIBS:jack_trs
 LIBS:stm32
-LIBS:m4audio-cache
 EELAYER 25 0
 EELAYER END
 $Descr A3 16535 11693
 encoding utf-8
 Sheet 1 2
 Title "Cortex-M4 Guitar Board"
-Date "2015-08-03"
-Rev "B"
+Date "2016-08-12"
+Rev "C"
 Comp "Jonas Norling - Elemental Instruments"
 Comment1 ""
 Comment2 ""

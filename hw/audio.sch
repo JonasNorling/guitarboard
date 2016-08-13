@@ -31,6 +31,7 @@ LIBS:valves
 LIBS:wm8731
 LIBS:jack_trs
 LIBS:stm32
+LIBS:m4audio-cache
 EELAYER 25 0
 EELAYER END
 $Descr A4 11693 8268

@@ -147,26 +147,25 @@ void codecInit(void)
     dma_enable_double_buffer_mode(DMA1, ADC_DMA_STREAM);
     dma_enable_stream(DMA1, ADC_DMA_STREAM);
 
-    // Enable interrupts on finished DMA transfers
-    dma_enable_transfer_complete_interrupt(DMA1, DAC_DMA_STREAM);
-    nvic_enable_irq(NVIC_DMA1_STREAM4_IRQ);
-    nvic_set_priority(NVIC_DMA1_STREAM4_IRQ, 0xff); // 0 is most urgent
+    dma_enable_transfer_complete_interrupt(DMA1, ADC_DMA_STREAM);
+    nvic_enable_irq(NVIC_DMA1_STREAM3_IRQ);
+    nvic_set_priority(NVIC_DMA1_STREAM3_IRQ, 0x80); // 0 is most urgent
 
     // Start transmitting data
     spi_enable_rx_dma(I2S2_EXT_BASE);
     spi_enable_tx_dma(SPI2);
 }
 
-void dma1_stream4_isr(void)
+void dma1_stream3_isr(void)
 {
-    dma_clear_interrupt_flags(DMA1, DAC_DMA_STREAM, DMA_TCIF);
+    dma_clear_interrupt_flags(DMA1, ADC_DMA_STREAM, DMA_TCIF);
 
     int16_t* outBuffer = dma_get_target(DMA1, DAC_DMA_STREAM) ?
                     (int16_t*)dacBuffer[0] :
                     (int16_t*)dacBuffer[1];
     const int16_t* inBuffer = dma_get_target(DMA1, DAC_DMA_STREAM) ?
-                    (const int16_t*)adcBuffer[1] :
-                    (const int16_t*)adcBuffer[0];
+                    (const int16_t*)adcBuffer[0] :
+                    (const int16_t*)adcBuffer[1];
 
     if (appProcess) {
         appProcess((const AudioBuffer*)inBuffer, (AudioBuffer*)outBuffer);

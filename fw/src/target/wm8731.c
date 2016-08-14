@@ -105,7 +105,9 @@ void codecInit(void)
     // table 126 in the data sheet.
     //
     // This gives us 1.536MHz SCLK = 16 bits * 2 channels * 48000 Hz
-    // and 12.288 MHz MCLK = 256 * 48000 Hz
+    // and 12.288 MHz MCLK = 256 * 48000 Hz.
+    // With this PLL configuration the actual sampling frequency
+    // is nominally 47991 Hz.
 
     spi_reset(SPI2);
 
@@ -184,8 +186,6 @@ void dma1_stream3_isr(void)
         appProcess((const AudioBuffer*)inBuffer, (AudioBuffer*)outBuffer);
     }
 
-    usbAudioFeed((const AudioBuffer*)inBuffer, (AudioBuffer*)outBuffer);
-
     samplecounter += CODEC_SAMPLES_PER_FRAME;
     CodecIntSample framePeakOut = INT16_MIN;
     CodecIntSample framePeakIn = INT16_MIN;
@@ -205,6 +205,22 @@ void dma1_stream3_isr(void)
     }
 
     platformFrameFinishedCB();
+}
+
+void codecPeek(const int16_t** buffer, unsigned* buffersamples, unsigned* writepos)
+{
+    *buffersamples = 2*BUFFER_SAMPLES;
+    *buffer = adcBuffer[0];
+
+    unsigned target = dma_get_target(DMA1, ADC_DMA_STREAM);
+    unsigned numberOfData = DMA_SNDTR(DMA1, ADC_DMA_STREAM);
+
+    if (target != dma_get_target(DMA1, ADC_DMA_STREAM)) {
+        target = dma_get_target(DMA1, ADC_DMA_STREAM);
+        numberOfData = DMA_SNDTR(DMA1, ADC_DMA_STREAM);
+    }
+
+    *writepos = (target ? BUFFER_SAMPLES : 0) + (BUFFER_SAMPLES - numberOfData);
 }
 
 void codecRegisterProcessFunction(CodecProcess fn)

@@ -3,6 +3,9 @@
 #include "usb_audio_descriptors.h"
 #include "platform.h"
 #include "usb_audio.h"
+#include "wm8731.h"
+#include <string.h>
+#include <libopencm3/stm32/dma.h>
 
 // Includes for isochronous hacks
 #include <libopencm3/lib/usb/usb_private.h>
@@ -23,10 +26,6 @@ struct UsbAudioFrame
 {
     int16_t s[2];
 } __attribute__((packed)) __attribute__((aligned(4)));
-
-static struct UsbAudioFrame audioInBuffer[CODEC_SAMPLES_PER_FRAME * 6];
-static uint16_t txBufferWritePos;
-static uint16_t txBufferReadPos;
 
 static const struct usb_audio_streaming_endpoint_descriptor audio_streaming_endp = {
         .bLength = sizeof(struct usb_audio_streaming_endpoint_descriptor),
@@ -141,8 +140,34 @@ const struct usb_interface_descriptor audio_streaming_iface[] = {{
 
 static void audioSendCb(usbd_device *usbd_dev, uint8_t ep)
 {
-    const uint8_t epno = ep & 0x7f;
+    const volatile struct UsbAudioFrame* adcbuffer;
+    unsigned buffersamples;
+    unsigned wr;
+    codecPeek((const int16_t**)&adcbuffer, &buffersamples, &wr);
 
+    // We handle stereo frames now, not individual L/R samples,
+    // so divide everything by two.
+    buffersamples /= 2;
+    wr /= 2;
+
+    // The ADC data is being modified in-place to remove a DC offset,
+    // so we must read data from the buffer that is already guaranteed
+    // to be "fixed". So we make sure to read in the half of the
+    // buffer that isn't being DMA'd to right now.
+    wr = (wr + buffersamples/2) % buffersamples;
+
+    // Copy over samples from the ADC buffers; as many as are available
+    // but no more than 1 extra sample.
+    static unsigned rd = 0;
+    static struct UsbAudioFrame usbbuffer[AUDIO_PACKET_SAMPLES + 1];
+    unsigned bufpt = 0;
+    while (rd != wr && bufpt < (AUDIO_PACKET_SAMPLES + 1)) {
+        usbbuffer[bufpt] = adcbuffer[rd];
+        bufpt++;
+        rd = (rd + 1) % buffersamples;
+    }
+
+    const uint8_t epno = ep & 0x7f;
     /*
      * Isochronous support: update odd/even frame bits.
      * This functionality isn't in libopencm3 yet, but there are pull
@@ -155,24 +180,7 @@ static void audioSendCb(usbd_device *usbd_dev, uint8_t ep)
         MMIO32(usbd_dev->driver->base_address + OTG_DIEPCTL(epno)) |= OTG_DIEPCTLX_SODDFRM;
     }
 
-    usbd_ep_write_packet(usbd_dev, ep, &audioInBuffer[txBufferReadPos],
-            AUDIO_PACKET_SIZE);
-
-    txBufferReadPos += AUDIO_PACKET_SAMPLES;
-    txBufferReadPos %= sizeof(audioInBuffer) / sizeof(*audioInBuffer);
-}
-
-void usbAudioFeed(const AudioBuffer* restrict in, AudioBuffer* restrict out)
-{
-    (void)out;
-    (void)in;
-
-    for (unsigned s = 0; s < CODEC_SAMPLES_PER_FRAME; s++) {
-        audioInBuffer[txBufferWritePos].s[0] = in->s[s][0];
-        audioInBuffer[txBufferWritePos].s[1] = in->s[s][1];
-        txBufferWritePos++;
-        txBufferWritePos %= sizeof(audioInBuffer) / sizeof(*audioInBuffer);
-    }
+    usbd_ep_write_packet(usbd_dev, ep, usbbuffer, sizeof(struct UsbAudioFrame) * bufpt);
 }
 
 void usbAudioSetupEps(usbd_device *usbd_dev)

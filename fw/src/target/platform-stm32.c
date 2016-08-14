@@ -130,7 +130,7 @@ void platformInit(const KnobConfig* knobConfig)
     rcc_periph_clock_enable(RCC_ADC1);
 
     // Enable LED pins and turn them on
-    gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO3 | GPIO7);
+    gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8 | GPIO7);
     gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO6);
     setLed(LED_GREEN, true);
     setLed(LED_RED, true);

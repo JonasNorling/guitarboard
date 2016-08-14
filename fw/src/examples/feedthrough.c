@@ -6,19 +6,21 @@
 
 static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
 {
-    setLed(LED_RED, true);
+    static unsigned counter;
+
+    counter++;
+    setLed(LED_GREEN, counter & (1 << 8));
+
     *out = *in;
 
-    setLed(LED_GREEN, false);
+    setLed(LED_RED, false);
     for (unsigned s = 0; s < CODEC_SAMPLES_PER_FRAME; s++) {
         const CodecIntSample max = in->s[s][0] > in->s[s][1] ? in->s[s][0] : in->s[s][1];
         if (abs(max) > 500) {
-            setLed(LED_GREEN, true);
+            setLed(LED_RED, true);
             break;
         }
     }
-
-    setLed(LED_RED, false);
 }
 
 int main()

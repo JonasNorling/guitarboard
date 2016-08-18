@@ -1,6 +1,7 @@
 .PHONY: all
 all: $(BUILDDIR)/feedthrough.elf $(BUILDDIR)/sine.elf $(BUILDDIR)/delay.elf
 all: $(BUILDDIR)/fxbox.elf $(BUILDDIR)/fxbox2.elf $(BUILDDIR)/guitar.elf
+all: $(BUILDDIR)/fft_tests.elf
 
 .PHONY: clean
 clean:
@@ -12,6 +13,8 @@ $(BUILDDIR)/%.o: src/%.c Makefile $(LIBOPENCM3)
 	@$(CC) -MD $(COMMONFLAGS) $(CFLAGS) -c -o $@ $<
 
 # -------------------------------------
+
+COMMONFLAGS += -Isrc/kiss_fft130
 
 $(BUILDDIR)/feedthrough.elf: $(COMMON_OBJS) $(BUILDDIR)/examples/feedthrough.o
 $(BUILDDIR)/sine.elf: $(COMMON_OBJS) $(BUILDDIR)/examples/sine.o
@@ -25,6 +28,9 @@ $(BUILDDIR)/fxbox2.elf: $(COMMON_OBJS) $(BUILDDIR)/fxbox2.o \
 	$(BUILDDIR)/dsp/delay.o
 $(BUILDDIR)/guitar.elf: $(COMMON_OBJS) $(BUILDDIR)/guitar.o \
 	$(BUILDDIR)/dsp/vibrato.o $(BUILDDIR)/dsp/delay.o
+$(BUILDDIR)/fft_tests.elf: $(COMMON_OBJS) $(BUILDDIR)/tests/fft_tests.o
+$(BUILDDIR)/fft_tests.elf: $(BUILDDIR)/kiss_fft130/kiss_fft.o
+$(BUILDDIR)/fft_tests.elf: $(BUILDDIR)/kiss_fft130/tools/kiss_fftr.o
 
 $(BUILDDIR)/%.elf: $(LIBOPENCM3) $(LDSCRIPT)
 	@echo LD $@

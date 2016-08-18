@@ -17,6 +17,10 @@ as on the target board, but using the computers sound card for audio I/O.
 * dfu-util - for programming the board with DFU over USB
 * OpenOCD 0.9.0 or later - for programming the board with an ST-Link v2
 
+KISS FFT is used to provide discrete Fourier transforms. It is included in the
+directory src/kiss_fft130 and is used under a BSD license. Copyright Mark
+Borgerding.
+
 
 ### Building the firmware
 

@@ -1,9 +1,12 @@
+#define _POSIX_C_SOURCE 199309L
+
 #include <jack/jack.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <unistd.h>
 #include <signal.h>
+#include <time.h>
 
 #include "codec.h"
 #include "jackclient.h"
@@ -15,6 +18,7 @@ static jack_port_t* or;
 static jack_port_t* il;
 static jack_port_t* ir;
 static CodecProcess appProcess;
+static void(*idleCallback)(void);
 
 static int process(jack_nframes_t nframes, void* arg)
 {
@@ -30,8 +34,8 @@ static int process(jack_nframes_t nframes, void* arg)
     const float invscale = 1.0/0x8000;
 
     for (size_t subframe = 0; subframe < nframes; subframe += CODEC_SAMPLES_PER_FRAME) {
-        AudioBuffer in;
-        AudioBuffer out;
+        AudioBuffer in = {};
+        AudioBuffer out = {};
 
         for (size_t sample = 0; sample < CODEC_SAMPLES_PER_FRAME; sample++) {
             in.s[sample][0] = ilBuf[subframe + sample] * scale;
@@ -68,6 +72,11 @@ void codedSetOutVolume(int voldB)
 void codecRegisterProcessFunction(CodecProcess fn)
 {
     appProcess = fn;
+}
+
+void jackClientSetIdleCallback(void(*cb)(void))
+{
+    idleCallback = cb;
 }
 
 void jackClientInit()
@@ -116,7 +125,12 @@ void jackClientRun()
     signal(SIGTERM, sigterm);
 
     while (!die) {
-        sleep(1);
+        if (idleCallback) {
+            idleCallback();
+        }
+
+        struct timespec t = { .tv_nsec = 1e6 };
+        nanosleep(&t, NULL);
     }
     jack_client_close(client);
 }

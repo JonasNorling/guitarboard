@@ -11,6 +11,11 @@ Board changelog and errata
   datasheet. I don't think it's necessary in this application.
 - There is too much capacitance on the board to comply with the USB
   standard, and inrush current is not limited.
+- Silkscreen showing orientation of opamp and codec are unclear on
+  finished board.
+- Some silkscreen text is too small.
+- Drills on TPs are too large for their pads for some processes.
+- Solder bridge potential on opamp pins 1 and 2 (doesn't matter).
 
 ### Changes in board revision C
 

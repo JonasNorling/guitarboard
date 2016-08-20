@@ -149,7 +149,7 @@ static void calculateThd(struct ThdResult* result, unsigned channel)
     result->dc = normPower(transform[channel][0]);
     result->fundamental = fundamental;
     result->harmonics = harms;
-    result->thd = sqrtf(harms / fundamental);
+    result->thd = harms / fundamental;
     result->other = other;
 }
 

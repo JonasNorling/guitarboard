@@ -169,13 +169,13 @@ void platformMainloop(void)
         __WFI();
 
         if (samplecounter >= lastprint + CODEC_SAMPLERATE) {
-            printf("%u samples, peak %5u %5u. ADC %x %x %x %x %x %x\n",
+            printf("%u samples, peak %5d %5d. ADC %x %x %x %x %x %x\n",
                     samplecounter, peakIn, peakOut,
                     adcValues[0], adcValues[1],
                     adcValues[2], adcValues[3],
                     adcValues[4], adcValues[5]);
 
-            peakIn = peakOut = 0;
+            peakIn = peakOut = INT16_MIN;
             lastprint += CODEC_SAMPLERATE;
         }
 

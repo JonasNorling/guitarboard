@@ -11,8 +11,8 @@
 #include <string.h>
 
 _Atomic unsigned samplecounter;
-_Atomic CodecIntSample peakIn;
-_Atomic CodecIntSample peakOut;
+_Atomic CodecIntSample peakIn = INT16_MIN;
+_Atomic CodecIntSample peakOut = INT16_MIN;
 
 static const uint32_t DAC_DMA_STREAM = DMA_STREAM4; // SPI2_TX
 static const uint32_t DAC_DMA_CHANNEL = DMA_SxCR_CHSEL_0;
@@ -49,7 +49,7 @@ static void codecConfig()
     codedSetInVolume(0);
     codedSetOutVolume(-10);
     codecWriteReg(0x04, 0b000010010); // Analog path - select DAC, no bypass
-    codecWriteReg(0x05, 0b000000000); // Digital path - disable soft mute
+    codecWriteReg(0x05, 0b000000001); // Digital path - disable soft mute and highpass
     codecWriteReg(0x06, 0b000000000); // Power down control - enable everything
     codecWriteReg(0x07, 0b000000010); // Interface format - 16-bit I2S
     codecWriteReg(0x09, 0b000000001); // Active control - engage!
@@ -160,26 +160,38 @@ void dma1_stream3_isr(void)
 {
     dma_clear_interrupt_flags(DMA1, ADC_DMA_STREAM, DMA_TCIF);
 
-    int16_t* outBuffer = dma_get_target(DMA1, DAC_DMA_STREAM) ?
-                    (int16_t*)dacBuffer[0] :
-                    (int16_t*)dacBuffer[1];
-    const int16_t* inBuffer = dma_get_target(DMA1, DAC_DMA_STREAM) ?
-                    (const int16_t*)adcBuffer[0] :
-                    (const int16_t*)adcBuffer[1];
+    AudioBuffer* outBuffer = dma_get_target(DMA1, DAC_DMA_STREAM) ?
+                    (void*)dacBuffer[0] :
+                    (void*)dacBuffer[1];
+    AudioBuffer* inBuffer = dma_get_target(DMA1, DAC_DMA_STREAM) ?
+                    (void*)adcBuffer[0] :
+                    (void*)adcBuffer[1];
+
+    // Correct DC offset
+    static int32_t correction[2] = { 1230 << 16, 1230 << 16 };
+    int average[2] = {};
+    for (unsigned n = 0; n < CODEC_SAMPLES_PER_FRAME; n++) {
+        inBuffer->s[n][0] += correction[0] >> 16;
+        inBuffer->s[n][1] += correction[1] >> 16;
+        average[0] += inBuffer->s[n][0];
+        average[1] += inBuffer->s[n][1];
+    }
+    correction[0] -= average[0] << 1;
+    correction[1] -= average[1] << 1;
 
     if (appProcess) {
         appProcess((const AudioBuffer*)inBuffer, (AudioBuffer*)outBuffer);
     }
 
     samplecounter += CODEC_SAMPLES_PER_FRAME;
-    CodecIntSample framePeakOut = 0;
-    CodecIntSample framePeakIn = 0;
+    CodecIntSample framePeakOut = INT16_MIN;
+    CodecIntSample framePeakIn = INT16_MIN;
     for (unsigned s = 0; s < BUFFER_SAMPLES; s++) {
-        if (outBuffer[s] > framePeakOut) {
-            framePeakOut = outBuffer[s];
+        if (outBuffer->m[s] > framePeakOut) {
+            framePeakOut = outBuffer->m[s];
         }
-        if (inBuffer[s] > framePeakIn) {
-            framePeakIn = inBuffer[s];
+        if (inBuffer->m[s] > framePeakIn) {
+            framePeakIn = inBuffer->m[s];
         }
     }
     if (framePeakOut > peakOut) {

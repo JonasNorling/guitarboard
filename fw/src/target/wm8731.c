@@ -179,8 +179,8 @@ void dma1_stream3_isr(void)
         average[0] += inBuffer->s[n][0];
         average[1] += inBuffer->s[n][1];
     }
-    correction[0] -= average[0] << 1;
-    correction[1] -= average[1] << 1;
+    correction[0] -= average[0] << 2;
+    correction[1] -= average[1] << 2;
 
     if (appProcess) {
         appProcess((const AudioBuffer*)inBuffer, (AudioBuffer*)outBuffer);

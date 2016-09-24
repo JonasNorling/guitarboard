@@ -18,13 +18,12 @@
 #include "utils.h"
 
 enum Effects {
-    EFFECT_QUIET,
     EFFECT_WAHWAH,
     EFFECT_VIBRATO,
     EFFECT_DELAY,
     EFFECT_PITCHER,
+    EFFECT_QUIET,
     EFFECT_NONE2,
-    EFFECT_NONE3,
     EFFECTS_COUNT
 };
 
@@ -85,11 +84,11 @@ static void process(const AudioBuffer* restrict in, AudioBuffer* restrict out)
     }
     case EFFECT_DELAY: {
         const DelayParams params = {
-                .input = knobs[0],
+                .input = knobs[4],
                 .confusion = knobs[1],
                 .feedback = knobs[3],
                 .octaveMix = 0.5f * knobs[1],
-                .length = knobs[4]
+                .length = knobs[0]
         };
         processDelay(&fin, &fout, &delayState, &params);
         break;

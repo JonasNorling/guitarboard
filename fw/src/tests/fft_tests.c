@@ -158,7 +158,7 @@ static void runThdTest(float f)
     signalW[0] = f / CODEC_SAMPLERATE;
     signalW[1] = f / CODEC_SAMPLERATE;
 
-    for (unsigned i = 0; i < 10; i++) {
+    for (unsigned i = 0; i < 20; i++) {
         doFft();
     }
 
@@ -213,7 +213,7 @@ static void runCrosstalkTest(float f, unsigned channel)
     const float fundBin = signalW[channel] * N;
     const int peakwidth = N/256;
 
-    for (unsigned i = 0; i < 10; i++) {
+    for (unsigned i = 0; i < 20; i++) {
         doFft();
     }
 
@@ -241,7 +241,7 @@ static void runNoisefloorTest()
 {
     memset(signalW, 0, sizeof(signalW));
 
-    for (unsigned i = 0; i < 10; i++) {
+    for (unsigned i = 0; i < 50; i++) {
         doFft();
     }
 
@@ -275,7 +275,7 @@ static void runNoisefloorTest()
 
 static void runTests()
 {
-    static const int volumes[] = { -40, -20, -5, 0, 5 };
+    static const int volumes[] = { -40, -20, -5, 0 };
     static const unsigned fs[] = { 440, 880, 1760, 3520, 7040 };
 
     while (true) {

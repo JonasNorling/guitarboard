@@ -11,6 +11,11 @@
 #include <stdint.h>
 #include <string.h>
 
+/// If WM8731_HIGHPASS is defined the codec is configured to remove
+/// DC bias automatically, otherwise it's done in software. The noise
+/// characteristics are different.
+//#define WM8731_HIGHPASS
+
 _Atomic unsigned samplecounter;
 _Atomic CodecIntSample peakIn = INT16_MIN;
 _Atomic CodecIntSample peakOut = INT16_MIN;
@@ -50,7 +55,11 @@ static void codecConfig()
     codedSetInVolume(0);
     codedSetOutVolume(-10);
     codecWriteReg(0x04, 0b000010010); // Analog path - select DAC, no bypass
+#ifdef WM8731_HIGHPASS
+    codecWriteReg(0x05, 0b000000000); // Digital path - disable soft mute
+#else
     codecWriteReg(0x05, 0b000000001); // Digital path - disable soft mute and highpass
+#endif
     codecWriteReg(0x06, 0b000000000); // Power down control - enable everything
     codecWriteReg(0x07, 0b000000010); // Interface format - 16-bit I2S
     codecWriteReg(0x09, 0b000000001); // Active control - engage!
@@ -170,6 +179,7 @@ void dma1_stream3_isr(void)
                     (void*)adcBuffer[0] :
                     (void*)adcBuffer[1];
 
+#ifndef WM8731_HIGHPASS
     // Correct DC offset
     static int32_t correction[2] = { 1230 << 16, 1230 << 16 };
     int average[2] = {};
@@ -181,6 +191,7 @@ void dma1_stream3_isr(void)
     }
     correction[0] -= average[0] << 2;
     correction[1] -= average[1] << 2;
+#endif
 
     if (appProcess) {
         appProcess((const AudioBuffer*)inBuffer, (AudioBuffer*)outBuffer);

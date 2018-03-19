@@ -5,6 +5,7 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/spi.h>
 #include <libopencm3/cm3/nvic.h>
+#include <libopencm3/cm3/systick.h>
 #include "platform.h"
 #include "usb_audio.h"
 
@@ -170,6 +171,7 @@ void codecInit(void)
 
 void dma1_stream3_isr(void)
 {
+    uint32_t startTime = systick_get_value();
     dma_clear_interrupt_flags(DMA1, ADC_DMA_STREAM, DMA_TCIF);
 
     AudioBuffer* outBuffer = dma_get_target(DMA1, DAC_DMA_STREAM) ?
@@ -215,7 +217,12 @@ void dma1_stream3_isr(void)
         peakIn = framePeakIn;
     }
 
-    platformFrameFinishedCB();
+    uint32_t endTime = systick_get_value();
+    int dt = startTime - endTime; // Systick is counting down
+    if (dt < 0) {
+	dt += 0x1000000;
+    }
+    platformFrameFinishedCB(dt);
 }
 
 void codecPeek(const int16_t** buffer, unsigned* buffersamples, unsigned* writepos)

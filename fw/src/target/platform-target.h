@@ -18,4 +18,4 @@ static inline void setLed(enum Led led, bool state)
     }
 }
 
-void platformFrameFinishedCB(void);
+void platformFrameFinishedCB(int ticks);

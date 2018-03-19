@@ -8,10 +8,12 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/dma.h>
 #include <libopencm3/cm3/nvic.h>
+#include <libopencm3/cm3/systick.h>
 #include <libopencmsis/core_cm3.h>
 #include <unistd.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <limits.h>
 
 #include "platform.h"
 #include "wm8731.h"
@@ -48,6 +50,8 @@ static const uint32_t ADC_DMA_CHANNEL = DMA_SxCR_CHSEL_0;
 
 static volatile uint16_t adcSamples[ADC_PINS]; // 12-bit value
 static volatile uint16_t adcValues[ADC_PINS]; // 16-bit value
+
+static volatile int frameTicksMin, frameTicksMax;
 
 static void(*idleCallback)(void);
 
@@ -105,11 +109,18 @@ static void ioInit(const KnobConfig* knobConfig)
     }
 }
 
-void platformFrameFinishedCB(void)
+void platformFrameFinishedCB(int ticks)
 {
     // Lowpass filter analog inputs
     for (unsigned i = 0; i < ADC_PINS; i++) {
         adcValues[i] = adcValues[i] - (adcValues[i] >> 4) + adcSamples[i];
+    }
+
+    if (ticks < frameTicksMin) {
+        frameTicksMin = ticks;
+    }
+    if (ticks > frameTicksMax) {
+        frameTicksMax = ticks;
     }
 }
 
@@ -128,6 +139,10 @@ void platformInit(const KnobConfig* knobConfig)
     rcc_periph_clock_enable(RCC_DMA1);
     rcc_periph_clock_enable(RCC_DMA2);
     rcc_periph_clock_enable(RCC_ADC1);
+
+    systick_counter_enable();
+    systick_set_reload(0xffffff);
+    systick_set_clocksource(STK_CSR_CLKSOURCE_AHB_DIV8);
 
     // Enable LED pins and turn them on
     gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8 | GPIO7);
@@ -169,12 +184,15 @@ void platformMainloop(void)
         __WFI();
 
         if (samplecounter >= lastprint + CODEC_SAMPLERATE) {
-            printf("%u samples, peak %5d %5d. ADC %x %x %x %x %x %x\n",
+            printf("%u samples, peak %5d %5d. ADC %x %x %x %x %x %x. Ticks %5d-%5d of 28000.\n",
                     samplecounter, peakIn, peakOut,
                     adcValues[0], adcValues[1],
                     adcValues[2], adcValues[3],
-                    adcValues[4], adcValues[5]);
+                    adcValues[4], adcValues[5],
+                    frameTicksMin, frameTicksMax);
 
+            frameTicksMin = INT32_MAX;
+            frameTicksMax = INT32_MIN;
             peakIn = peakOut = INT16_MIN;
             lastprint += CODEC_SAMPLERATE;
         }

@@ -1,7 +1,7 @@
 .PHONY: all
 all: $(BUILDDIR)/feedthrough.elf $(BUILDDIR)/sine.elf $(BUILDDIR)/delay.elf
 all: $(BUILDDIR)/fxbox.elf $(BUILDDIR)/fxbox2.elf $(BUILDDIR)/guitar.elf
-all: $(BUILDDIR)/fft_tests.elf
+all: $(BUILDDIR)/fft_tests.elf $(BUILDDIR)/sawsynth.elf
 
 .PHONY: clean
 clean:
@@ -31,6 +31,11 @@ $(BUILDDIR)/guitar.elf: $(COMMON_OBJS) $(BUILDDIR)/guitar.o \
 $(BUILDDIR)/fft_tests.elf: $(COMMON_OBJS) $(BUILDDIR)/tests/fft_tests.o
 $(BUILDDIR)/fft_tests.elf: $(BUILDDIR)/kiss_fft130/kiss_fft.o
 $(BUILDDIR)/fft_tests.elf: $(BUILDDIR)/kiss_fft130/tools/kiss_fftr.o
+
+src/sawsynth/wt.h: src/sawsynth/make_wavetable.py
+	$< > $@
+$(BUILDDIR)/sawsynth/sawsynth.o: src/sawsynth/wt.h
+$(BUILDDIR)/sawsynth.elf: $(COMMON_OBJS) $(BUILDDIR)/sawsynth/sawsynth.o
 
 $(BUILDDIR)/%.elf: $(LIBOPENCM3) $(LDSCRIPT)
 	@echo LD $@

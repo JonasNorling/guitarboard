@@ -35,7 +35,7 @@ $(BUILDDIR)/fft_tests.elf: $(BUILDDIR)/kiss_fft130/tools/kiss_fftr.o
 src/sawsynth/wt.h: src/sawsynth/make_wavetable.py
 	$< > $@
 $(BUILDDIR)/sawsynth/sawsynth.o: src/sawsynth/wt.h
-$(BUILDDIR)/sawsynth.elf: $(COMMON_OBJS) $(BUILDDIR)/sawsynth/sawsynth.o
+$(BUILDDIR)/sawsynth.elf: $(COMMON_OBJS) $(BUILDDIR)/sawsynth/sawsynth.o $(BUILDDIR)/dsp/biquad.o
 
 $(BUILDDIR)/%.elf: $(LIBOPENCM3) $(LDSCRIPT)
 	@echo LD $@

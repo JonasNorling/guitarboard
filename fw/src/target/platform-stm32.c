@@ -4,6 +4,7 @@
 
 #include <libopencm3/cm3/itm.h>
 #include <libopencm3/stm32/adc.h>
+#include <libopencm3/stm32/flash.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/dma.h>
@@ -131,6 +132,9 @@ void platformInit(const KnobConfig* knobConfig)
     }
 
     rcc_clock_setup_hse_3v3(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
+    flash_dcache_enable();
+    flash_icache_enable();
+    flash_prefetch_enable();
     rcc_periph_clock_enable(RCC_GPIOA);
     rcc_periph_clock_enable(RCC_GPIOB);
     rcc_periph_clock_enable(RCC_GPIOC);

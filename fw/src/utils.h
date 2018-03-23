@@ -5,6 +5,8 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#define ARRAY_SIZE(a) (sizeof((a))/sizeof(*(a)))
+
 /**
  * Convert a frequency to radians for making filters
  */
